@@ -1,0 +1,371 @@
+<html>
+<head>
+<meta charset="utf-8" />
+<style>
+body { font-family: sans-serif; background: transparent;}
+pre { background-color: #ccc; color: #000; padding: 1em; white-space: pre-wrap; display: none; }
+h2 { border-bottom: 1px solid #444; }
+a { color: #5c5cff; }
+</style>
+<script>
+function show(n) {
+	var e = document.getElementById(n);
+	if (e.style.display == "block") {
+		e.style.display="none";
+	} else {
+		e.style.display="block";
+	}
+}
+</script>
+</head>
+<body>
+<h1>Vanilla Music</h1>
+<p><b>Version:</b> 1.1.0 Released Apr. 11 2021<br><br>
+<b>Website:</b> <a href='https://vanilla-music.github.io/'>https://vanilla-music.github.io/</a><br>
+<b>Issue tracker:</b> <a href='https://github.com/vanilla-music/vanilla/issues'>https://github.com/vanilla-music/vanilla/issues</a><br>
+<b>Community &amp; support:</b> <a href='https://www.reddit.com/r/vanillamusic'>/r/VanillaMusic</a><br>
+<b>Nightly Build:</b> <a href='http://android.eqmx.net/android/vanilla/VanillaMusic-nightly.apk'>VanillaMusic-nightly.apk</a><br>
+<br>
+<b>Changelog</b> [<a href='javascript:show("changelog")'>show</a>]
+<pre id='changelog'>
+
+<b>1.1.0</b>
+- <b>FIX</b> Unbreak plugin integration
+- <b>FIX</b> Always show cover art in notification
+
+<b>1.0.92</b>
+- <b>NEW</b> Greatly improve handling of SD-Cards
+- <b>FIX</b> Make library preferences dialog nicer
+
+<b>1.0.91</b>
+- <b>NEW</b> Switch to new notification framework
+- <b>NEW</b> Added move to top/bottom actions in queue view
+- <b>CLEANUP</b> Change SDK target to 30
+- <b>CLEANUP</b> Remove MirrorLink support
+- <b>FIX</b> Fix genre tab expansion
+
+<b>1.0.90</b>
+- <b>NEW</b> Some cosmetic fixes
+
+<b>1.0.85</b>
+- <b>NEW</b> Upgrade to Android API 29
+- <b>NEW</b> New limiter view layout
+- <b>FIX</b> Bugfix for relative playlist import / export
+
+<b>1.0.84</b>
+- <b>FIX</b> Make context menues more consistent
+- <b>FIX</b> Use better default for playlist export path
+- <b>FIX</b> Improve replay gain calculation
+
+<b>1.0.83</b>
+- <b>FIX</b> Improve plugins system
+- <b>FIX</b> Fixed some playlist synchronization issues
+
+<b>1.0.82</b>
+- <b>NEW</b> New context menu in library
+- <b>NEW</b> Show duration of playlists
+- <b>FIX</b> Fix replay gain calculation for opus (R128)
+- <b>FIX</b> Support for 'play all' in files tab
+
+
+<b>1.0.81</b>
+- <b>FIX</b> Increase plugin performance on Android 4.x
+- <b>FIX</b> Minor UI fixes
+
+<b>1.0.80</b>
+- <b>NEW</b> Add 'Details' dialog
+- <b>NEW</b> Add 'Jump to...' function
+- <b>NEW</b> Display duration in Albums tab
+- <b>NEW</b> Sort albums by duration
+- <b>NEW</b> Do not scan dotfiles
+- <b>FIX</b> Fix a few crash bugs
+
+<b>1.0.73</b>
+- <b>FIX</b> Fix plugin system on newer android releases
+
+<b>1.0.72</b>
+- <b>FIX</b> Fix file selection which broke in 1.0.70
+
+<b>1.0.70</b>
+- <b>NEW</b> Option to synchronize M3U Playlists
+- <b>NEW</b> Read artwork from embedded tags
+- <b>NEW</b> Option to scroll to current song in queue view
+
+<b>1.0.62</b>
+- <b>NEW</b> Landscape library layout
+- <b>NEW</b> Change default library action
+
+<b>1.0.61</b>
+- <b>FIX</b> Fix an issue where the queue view became inactive
+- <b>NEW</b> Display song duration
+- <b>NEW</b> Sort by duration
+
+<b>1.0.60</b>
+- <b>NEW</b> Upgrade SDK version to 27
+- <b>FIX</b> Improved tag parser
+- <b>FIX</b> Fix issue with some bluetooth headsets
+
+<b>1.0.59</b>
+- <b>NEW</b> Dark (AMOLED) theme
+- <b>NEW</b> Random mode picks random album if shuffle is set to album
+- <b>NEW</b> Basic Google Now integration
+- <b>FIX</b> Improved detection of external headphones
+
+<b>1.0.58</b>
+- <b>NEW</b> Use internal tagreader by default for new installations
+- <b>FIX</b> Correctly sort multi disc albums in album-shuffle mode
+- <b>FIX</b> Fixed an NPE and an obscure endless loop
+
+<b>1.0.57</b>
+- <b>NEW</b> Raw path names can now be entered in the folder picker preference
+- <b>NEW</b> Run periodic cleanup jobs on newer Android versions automatically
+
+<b>1.0.56</b>
+- <b>FIX</b> Fix headset issues on Android 8.0
+- <b>FIX</b> Improve cover placeholder image resolution
+- <b>FIX</b> Enable sharing of files stored on external storage
+
+<b>1.0.55</b>
+- <b>NEW</b> Upgraded SDK to Android 8.0
+- <b>NEW</b> Added back button to small notification
+- <b>FIX</b> Various small bugfixes
+
+<b>1.0.54</b>
+- <b>FIX</b> Improved cover scrolling
+- <b>FIX</b> Improved performance on Android 4.x
+- <b>FIX</b> Tag reader improvements
+- <b>FIX</b> Better auto discovery of media directories
+- <b>NEW</b> Help link added to 'Settings' page
+
+<b>1.0.53</b>
+- <b>NEW</b> Various new icons
+- <b>NEW</b> Ability to handle more external data sources
+- <b>NEW</b> Refreshed Holo / Android 4.x look
+- <b>FIX</b> Fixed button context menu for Android 7.x
+- <b>FIX</b> Fixed various small crashbugs
+
+<b>1.0.52</b>
+- <b>NEW</b> Folders can now be in- or excluded from the music library
+- <b>NEW</b> Files can now be sorted
+- <b>NEW</b> Cleaned up and improved file browser
+- <b>NEW</b> Ability to jump to folder from song
+- <b>FIX</b> Display 'Plugins' option only if plugins are installed
+- <b>FIX</b> Preserve play- and skipcount during rescans
+
+<b>1.0.51</b>
+- <b>FIX</b> Read MIDI files
+- <b>FIX</b> Fix tabs on Android 7.0
+- <b>NEW</b> Added 'Play All' option in file view
+- <b>NEW</b> Support for 'Composer' and 'Album Artist' tags
+
+<b>1.0.50</b>
+- <b>FIX</b> Improved internal tagreader
+- <b>FIX</b> Fixed crash on Android 4.0 devices
+
+<b>1.0.49</b>
+- <b>NEW</b> Option to force use of internal tag reader
+- <b>NEW</b> Option to group albums by folder
+- <b>FIX</b> Various smaller fixes
+
+<b>1.0.48</b>
+- <b>FIX</b> Correctly handle genres for ID3v1 tags
+- <b>FIX</b> Unbroke scrobbler API
+- <b>FIX</b> Relaxed and tuned indexing blacklist
+
+<b>1.0.47</b>
+- <b>NEW</b> Completely new media database engine
+- <b>NEW</b> Support for plugins
+- <b>NEW</b> Fancy blue theme
+- <b>FIX</b> Fit cover art in notification
+
+<b>1.0.46</b>
+- <b>NEW</b> Replay gain support for m4a files
+- <b>NEW</b> New and improved sorting options
+- <b>FIX</b> Some performance improvements
+- <b>FIX</b> Upgraded to Android 7 SDK
+
+<b>1.0.45</b>
+- <b>NEW</b> Enqueue selected folders alphabetically
+- <b>FIX</b> Do not crash on Android 5.x while creating a Playlist
+- <b>FIX</b> Improved detection of storage paths for the media scanner
+- <b>FIX</b> Improved replay gain tag parser
+
+<b>1.0.44</b>
+- <b>NEW</b> Triple-Click the headset button to switch to previous song.
+- <b>FIX</b> Various small bugfixes
+
+<b>1.0.43</b>
+- <b>NEW</b> Option to 'follow' playing song in library view
+- <b>FIX</b> Various small bugfixes
+
+<b>1.0.42</b>
+- <b>NEW</b> Option to perform a SD-Card rescan
+- <b>NEW</b> 'Play All' option in context menu
+- <b>NEW</b> 'Add to Playlist' option in Now Playing screen
+- <b>FIX</b> Various small bugfixes
+
+<b>1.0.41</b>
+- <b>NEW</b> New application icon
+- <b>NEW</b> Opus Replay Gain support
+- <b>NEW</b> Support for multiple color themes
+- <b>NEW</b> Added 'Add to Playlist' option in queue fragment
+
+<b>1.0.40</b>
+- <b>NEW</b> 'Show queue' can now be selected as swipe action
+- <b>FIX</b> Multiple crashfixes
+
+<b>1.0.39</b>
+- <b>FIX</b> Various bugfixes
+
+<b>1.0.38</b>
+- <b>NEW</b> Display playback queue by sliding-up the bottom bar
+- <b>NEW</b> Announce 'rock scout' capability in Manifest
+- <b>NEW</b> Enabled Fast-Scroll in library view (Thanks to Oleg Chernovskiy)
+- <b>FIX</b> Hide genres with zero entries
+- <b>FIX</b> Remember scrolling position in files tab
+
+<b>1.0.37</b>
+- <b>NEW</b> Added a '☆' button to quickly manage favorites
+- <b>FIX</b> Fixed various crashes
+
+<b>1.0.36</b>
+- <b>NEW</b> Added option to ignore audio focus losses
+- <b>NEW</b> Use Android 5.0 Mediasession API
+- <b>NEW</b> Cache covers using WEBP
+- <b>NEW</b> Redesigned Library view to match Material Design guidelines
+- <b>NEW</b> Changed default click option from 'Play' to 'Expand'
+- <b>FIX</b> Do not show close button on uncloseable notification
+
+<b>1.0.35</b>
+- <b>FIX</b> Fixed crash on Android 4.0.3
+- <b>FIX</b> Workaround mediaserver bug which failed to accept some file paths
+
+<b>1.0.34</b>
+- <b>NEW</b> Improved Android 6 support
+- <b>NEW</b> Added disk cover cache
+- <b>NEW</b> Rewind songs on `|&lt;&lt;'
+- <b>NEW</b> Ability to filter artists by genre
+- <b>FIX</b> Remember `Files' tab position
+- <b>FIX</b> Do not crash on `play all' with active genre limiter
+
+<b>1.0.33</b>
+- <b>FIX</b> Solve layout issues of the queue-pos element
+- <b>FIX</b> Improve filtering by genre
+- <b>FIX</b> Fixed a layout issue with 'info below cover' mode
+- <b>FIX</b> Fixed a bug when hitting the last song in shuffle mode
+- <b>NEW</b> Dispatch text and image files to external viewers
+- <b>NEW</b> Automatic 'Top xyz' playlist creation
+- <b>NEW</b> Include headphone detector in settings
+- <b>NEW</b> Option to disable album artwork on lock screen
+
+<b>1.0.32</b>
+- <b>NEW</b> Added support for ducking (Thanks to Xiao Bao Clark)
+- <b>NEW</b> Added support for MirrorLink (Thanks to Laurent Cremmer)
+- <b>FIX</b> Fix layout issues with big fonts
+
+<b>1.0.31</b>
+- <b>NEW</b> Fadein cover artwork
+- <b>FIX</b> Various small patches and fixes
+
+<b>1.0.30</b>
+- <b>NEW</b> Display album artwork in listview
+- <b>NEW</b> Fling-Remove of playlist items
+- <b>FIX</b> Fixed playlist reordering bug
+
+<b>1.0.20</b>
+- <b>NEW</b> Support for heads-up-display notifications
+- <b>NEW</b> Added 'skip 10 seconds' longpress action
+- <b>FIX</b> Disable fastscroll in library view, making it useable on Android 5.1
+- <b>FIX</b> Improved parsing of ID3v-2.4 tags (Thanks to Noah Crocker)
+
+<b>1.0.10</b>
+- <b>NEW</b> Dark material theme support
+
+<b>1.0.00</b>
+- <b>NEW</b> Added 'Continuous Shuffling' option
+- <b>FIX</b> Workaround for AudioFX crashes on CyanogenMod
+- <b>FIX</b> Save track position on shutdown
+- <b>FIX</b> Fixed some 'shake action' issues
+- <b>FIX</b> Remember list position while deleting songs
+- <b>FIX</b> Unbreak widgets broken in 0.99
+
+<b>0.9.99</b>
+- <b>NEW</b> Material design
+- <b>NEW</b> Native searchview
+- <b>NEW</b> <i>Empty queue</i> option in Queue screen
+- <b>NEW</b> Gradle / Android Studio support by @AltNico
+- <b>FIX</b> Enqueue bug introduced in 0.9.42
+</pre>
+<h2>Contributors</h2>
+<ul>
+	<li>Adrian Ulrich (current maintainer)</li>
+	<li>Amin Bandali (current maintainer)</li>
+	<li>Andrew Nayenko (pre 1.0.53 icon)</li>
+	<li>Chris Eby (original creator)</li>
+	<li>David Beswick (various contributions)</li>
+	<li>Emir Sar&#305; (Turkish translation)</li>
+	<li>Ferenc Nagy (icon)</li>
+	<li>Jean-Baptiste Lab (notication color invert)</li>
+	<li>Jean-Fran&ccedil;ois Im (cover art loading)</li>
+	<li>Jerry Liao (Chinese (Taiwan) translation)</li>
+	<li>Jiri Gr&ouml;nroos (Finnish translation)</li>
+	<li>Magnus Anderssen (headset button)</li>
+	<li>Mildred Ki'Lya (stop after track mode)</li>
+	<li>Oleg (Adonai) Chernovskiy (fastscroll)</li>
+	<li>Rosario Antoci (Italian translation)</li>
+	<li>Xiao Bao Clark (various contributions)</li>
+	<li>Yacine Krouri (current icon and various graphics)</li>
+	<!-- TODO: add more translators -->
+</ul>
+<h2>Licenses</h2>
+<h3>Vanilla Music [<a href='javascript:show("l1")'>show</a>]</h3>
+<pre id='l1'>
+Copyright (C) 2012-2018 Vanilla Music contributors
+
+This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
+
+This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
+</pre>
+
+<h3>Vanilla Music includes code released under the <a href='javascript:show("l2")'>MIT License</a></h3>
+<pre id='l2'>
+Copyright (C) 2012-2013 Vanilla Music contributors
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+</pre>
+<h3>DragSortListView [<a href='javascript:show("l4")'>show</a>]</h3>
+<pre id='l4'>
+A subclass of the Android ListView component that enables drag
+and drop re-ordering of list items.
+
+Copyright 2012 Carl Bauer
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+</pre>
+</body>
+
+<script>
+	var query = decodeURIComponent(window.location.search.substring(1));
+	var color = query.match(/^#..(.+)/);
+	if (color != null) {
+		// android gives us aRGB, but we need RGB
+		color = '#' + color[1];
+		document.body.style.color = color;
+	}
+</script>
+
+</html>

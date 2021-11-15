@@ -1,0 +1,153 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+Copyright (C) 2016 Adrian Ulrich <adrian@blinkenlights.ch>
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program. If not, see <http://www.gnu.org/licenses/>.
+-->
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+	android:layout_width="fill_parent"
+	android:layout_height="fill_parent" >
+
+	<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+		xmlns:tools="http://schemas.android.com/tools"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:paddingTop="5dp"
+		android:paddingLeft="14dp"
+		android:paddingRight="14dp"
+		android:orientation="vertical" >
+
+		<TextView
+			style="?android:attr/listSeparatorTextViewStyle"
+			android:textColor="?overlay_foreground_color"
+			android:text="@string/media_scan_preferences" />
+		<CheckBox android:id="@+id/media_scan_group_albums"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:text="@string/media_scan_group_albums" />
+		<CheckBox android:id="@+id/media_scan_force_bastp"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:text="@string/media_scan_force_bastp" />
+
+		<TextView
+			style="?android:attr/listSeparatorTextViewStyle"
+			android:textColor="?overlay_foreground_color"
+			android:text="@string/media_folders_header" />
+
+		<TextView
+			android:id="@+id/media_directories"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:text="@string/empty" />
+
+		<Button
+			android:id="@+id/edit_button"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_gravity="end"
+			android:text="@string/edit">
+		</Button>
+
+		<TextView
+			style="?android:attr/listSeparatorTextViewStyle"
+			android:textColor="?overlay_foreground_color"
+			android:text="@string/media_scan_header" />
+
+		<CheckBox android:id="@+id/media_scan_full"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:text="@string/media_scan_full" />
+		<CheckBox android:id="@+id/media_scan_drop_db"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:text="@string/media_scan_drop_db" />
+
+		<LinearLayout
+		    android:layout_width="wrap_content"
+		    android:layout_height="wrap_content"
+		    android:layout_gravity="end">
+		  <Button
+		      android:id="@+id/cancel_button"
+		      android:layout_width="wrap_content"
+		      android:layout_height="wrap_content"
+		      android:text="@string/cancel">
+		  </Button>
+		  <Button
+		      android:id="@+id/start_button"
+		      android:layout_width="wrap_content"
+		      android:layout_height="wrap_content"
+		      android:text="@string/media_scan_start">
+		  </Button>
+		</LinearLayout>
+
+		<TextView
+			style="?android:attr/listSeparatorTextViewStyle"
+			android:textColor="?overlay_foreground_color"
+			android:text="@string/media_statistics" />
+
+		<TableLayout xmlns:android="http://schemas.android.com/apk/res/android"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:stretchColumns="1">
+			<TableRow>
+				<TextView
+				android:text="@string/media_stats_tracks"
+				android:padding="3dip" />
+				<TextView
+				android:id="@+id/media_stats_tracks"
+				android:text="@string/empty"
+				android:gravity="right"
+				android:padding="3dip" />
+			</TableRow>
+			<TableRow>
+				<TextView
+					android:text="@string/media_stats_library_playtime"
+					android:padding="3dip" />
+				<TextView
+					android:text="@string/empty"
+					android:id="@+id/media_stats_library_playtime"
+					android:gravity="right"
+					android:padding="3dip" />
+			</TableRow>
+			<TableRow>
+				<TextView
+					android:text="@string/media_stats_listen_playtime"
+					android:padding="3dip" />
+				<TextView
+					android:text="@string/empty"
+					android:id="@+id/media_stats_listen_playtime"
+					android:gravity="right"
+					android:padding="3dip" />
+			</TableRow>
+		</TableLayout>
+
+		<ProgressBar
+			android:id="@+id/media_stats_progress_bar"
+			android:paddingTop="14dp"
+			android:layout_width="match_parent"
+			android:layout_height="match_parent"
+			style="?android:attr/progressBarStyleHorizontal" />
+
+		<TextView
+			android:id="@+id/media_stats_progress_text"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:minLines="4"
+			android:text="@string/empty" />
+
+	</LinearLayout>
+
+
+</ScrollView>

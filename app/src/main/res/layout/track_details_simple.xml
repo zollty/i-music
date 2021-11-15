@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+Copyright (C) 2018 Toby Hsieh
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program. If not, see <https://www.gnu.org/licenses/>.
+-->
+<merge xmlns:android="http://schemas.android.com/apk/res/android">
+	<TableRow>
+		<TextView
+			android:text="@string/_title"
+			android:textColor="#ffffff"
+			android:paddingRight="5dip"
+			android:gravity="right" />
+		<TextView
+			android:id="@+id/title"
+			android:textColor="#ffffff"
+			android:textSize="22dip"
+			android:textStyle="bold" />
+		<TextView
+			android:id="@+id/queue_pos"
+			android:singleLine="true"
+			android:gravity="right"
+			android:textColor="#ffffff"
+			android:layout_gravity="top" />
+	</TableRow>
+
+	<TableRow>
+		<TextView
+			android:text="@string/_artist"
+			android:textColor="#ffffff"
+			android:paddingRight="5dip"
+			android:gravity="right" />
+		<TextView android:id="@+id/artist" android:textColor="#ffffff" />
+	</TableRow>
+
+	<TableRow>
+		<TextView
+			android:text="@string/_album"
+			android:textColor="#ffffff"
+			android:paddingRight="5dip"
+			android:gravity="right" />
+		<TextView android:id="@+id/album" android:textColor="#ffffff"/>
+	</TableRow>
+
+	<TableRow>
+		<TextView
+			android:text="@string/_format"
+			android:textColor="#ffffff"
+			android:paddingRight="5dip"
+			android:gravity="right" />
+		<TextView android:id="@+id/format" android:textColor="#ffffff" />
+	</TableRow>
+
+	<TableRow>
+		<TextView
+			android:text="@string/_path"
+			android:textColor="#ffffff"
+			android:paddingRight="5dip"
+			android:gravity="right" />
+		<TextView android:id="@+id/path" android:textColor="#ffffff" />
+	</TableRow>
+</merge>
