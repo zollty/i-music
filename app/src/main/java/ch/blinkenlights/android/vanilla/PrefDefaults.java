@@ -58,6 +58,7 @@ public class PrefDefaults {
 	public static final Action  SHAKE_ACTION = Action.NextSong;
 	public static final int     SHAKE_THRESHOLD = 80;
 	public static final boolean ENABLE_PLAYPERCENT = false;
+	public static final int     PLAYPERCENT_START = 0;
 	public static final int     PLAYPERCENT_THRESHOLD = 100;
 	public static final boolean STOCK_BROADCAST = true;
 	public static final Action  SWIPE_DOWN_ACTION = Action.Nothing;

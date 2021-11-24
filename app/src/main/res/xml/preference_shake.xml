@@ -52,6 +52,15 @@ THE SOFTWARE.
 		android:summary="@string/enable_playpercent_summary"
 		android:defaultValue="false" />
 	<ch.blinkenlights.android.vanilla.SeekBarPreference
+		android:key="playpercent_start"
+		android:negativeButtonText="@null"
+		android:dialogLayout="@layout/seekbar_pref"
+		android:title="@string/playpercent_start_title"
+		android:defaultValue="0"
+		vanilla:sbpMaxValue="100"
+		vanilla:sbpSummaryValueMultiplication="1"
+		android:dependency="enable_playpercent" />
+	<ch.blinkenlights.android.vanilla.SeekBarPreference
 		android:key="playpercent_threshold"
 		android:negativeButtonText="@null"
 		android:dialogLayout="@layout/seekbar_pref"

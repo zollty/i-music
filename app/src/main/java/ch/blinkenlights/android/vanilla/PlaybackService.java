@@ -317,7 +317,11 @@ public final class PlaybackService extends Service
 	/**
 	 * The percent time of a song to play.
 	 */
-	private int playTimePercent;
+	private int playTimeEndPercent;
+	/**
+	 * The percent time of a song to play.
+	 */
+	private int playTimeStartPercent;
 	/**
 	 * The intent for the notification to execute, created by
 	 * {@link PlaybackService#createNotificationAction(SharedPreferences)}.
@@ -468,7 +472,8 @@ public final class PlaybackService extends Service
 		mNotificationVisibility = Integer.parseInt(settings.getString(PrefKeys.NOTIFICATION_VISIBILITY, PrefDefaults.NOTIFICATION_VISIBILITY));
 		mScrobble = settings.getBoolean(PrefKeys.SCROBBLE, PrefDefaults.SCROBBLE);
 		mIdleTimeout = settings.getBoolean(PrefKeys.USE_IDLE_TIMEOUT, PrefDefaults.USE_IDLE_TIMEOUT) ? settings.getInt(PrefKeys.IDLE_TIMEOUT, PrefDefaults.IDLE_TIMEOUT) : 0;
-		playTimePercent = settings.getBoolean(PrefKeys.ENABLE_PLAYPERCENT, PrefDefaults.ENABLE_PLAYPERCENT) ? settings.getInt(PrefKeys.PLAYPERCENT_THRESHOLD, PrefDefaults.PLAYPERCENT_THRESHOLD) : 0;
+		playTimeEndPercent = settings.getBoolean(PrefKeys.ENABLE_PLAYPERCENT, PrefDefaults.ENABLE_PLAYPERCENT) ? settings.getInt(PrefKeys.PLAYPERCENT_THRESHOLD, PrefDefaults.PLAYPERCENT_THRESHOLD) : 0;
+		playTimeStartPercent = settings.getBoolean(PrefKeys.ENABLE_PLAYPERCENT, PrefDefaults.ENABLE_PLAYPERCENT) ? settings.getInt(PrefKeys.PLAYPERCENT_START, PrefDefaults.PLAYPERCENT_START) : 0;
 		CoverCache.mCoverLoadMode = settings.getBoolean(PrefKeys.COVERLOADER_ANDROID, PrefDefaults.COVERLOADER_ANDROID) ? CoverCache.mCoverLoadMode | CoverCache.COVER_MODE_ANDROID : CoverCache.mCoverLoadMode & ~(CoverCache.COVER_MODE_ANDROID);
 		CoverCache.mCoverLoadMode = settings.getBoolean(PrefKeys.COVERLOADER_VANILLA, PrefDefaults.COVERLOADER_VANILLA) ? CoverCache.mCoverLoadMode | CoverCache.COVER_MODE_VANILLA : CoverCache.mCoverLoadMode & ~(CoverCache.COVER_MODE_VANILLA);
 		CoverCache.mCoverLoadMode = settings.getBoolean(PrefKeys.COVERLOADER_SHADOW , PrefDefaults.COVERLOADER_SHADOW)  ? CoverCache.mCoverLoadMode | CoverCache.COVER_MODE_SHADOW  : CoverCache.mCoverLoadMode & ~(CoverCache.COVER_MODE_SHADOW);
@@ -850,19 +855,24 @@ public final class PlaybackService extends Service
 		BastpUtil.GainValues rg = getReplayGainValues(mMediaPlayer.getDataSource());
 		// mHandler.removeMessages(MSG_FADE_ON);
 		// Log.v("VanillaMusic", "doGapless: " + mMediaPlayer.getDataSource());
-		if (rg.seekStart > 0) {
-			seekToPosition(rg.seekStart);
+		int start = 0;
+		if (playTimeStartPercent > 1) {
+			start = mMediaPlayer.getDuration() * playTimeStartPercent / 100;
+		}
+		start = start > rg.seekStart ? start : rg.seekStart;
+		if (start > 0) {
+			seekToPosition(start);
 		}
 		mHandler.removeMessages(MSG_SEEK_TIMEOUT);
-		if (playTimePercent > 1) {
-			int endTime = (mMediaPlayer.getDuration() - rg.seekStart) * playTimePercent / 100;
+		if (playTimeEndPercent > 1) {
+			int endTime = (mMediaPlayer.getDuration() - start) * playTimeEndPercent / 100;
 			if (endTime > 10) { // ignore less than 10s
 				mHandler.sendEmptyMessageDelayed(MSG_SEEK_TIMEOUT, endTime);
 			}
 		} else {
 			if (rg.seekEnd > 0) {
 				// Log.v("VanillaMusic", "wait to MSG_SEEK_TIMEOUT: " + (rg.seekEnd-rg.seekStart));
-				int endTime = rg.seekEnd - rg.seekStart;
+				int endTime = rg.seekEnd - start;
 				if (endTime > 10 && endTime < mMediaPlayer.getDuration()) { // ignore less than 10s
 					mHandler.sendEmptyMessageDelayed(MSG_SEEK_TIMEOUT, endTime);
 				}
@@ -920,8 +930,9 @@ public final class PlaybackService extends Service
 		} else if (PrefKeys.USE_IDLE_TIMEOUT.equals(key) || PrefKeys.IDLE_TIMEOUT.equals(key)) {
 			mIdleTimeout = settings.getBoolean(PrefKeys.USE_IDLE_TIMEOUT, PrefDefaults.USE_IDLE_TIMEOUT) ? settings.getInt(PrefKeys.IDLE_TIMEOUT, PrefDefaults.IDLE_TIMEOUT) : 0;
 			userActionTriggered();
-		} else if (PrefKeys.ENABLE_PLAYPERCENT.equals(key) || PrefKeys.PLAYPERCENT_THRESHOLD.equals(key)) {
-			playTimePercent = settings.getBoolean(PrefKeys.ENABLE_PLAYPERCENT, PrefDefaults.ENABLE_PLAYPERCENT) ? settings.getInt(PrefKeys.PLAYPERCENT_THRESHOLD, PrefDefaults.PLAYPERCENT_THRESHOLD) : 0;
+		} else if (PrefKeys.ENABLE_PLAYPERCENT.equals(key) || PrefKeys.PLAYPERCENT_THRESHOLD.equals(key) || PrefKeys.PLAYPERCENT_START.equals(key)) {
+			playTimeEndPercent = settings.getBoolean(PrefKeys.ENABLE_PLAYPERCENT, PrefDefaults.ENABLE_PLAYPERCENT) ? settings.getInt(PrefKeys.PLAYPERCENT_THRESHOLD, PrefDefaults.PLAYPERCENT_THRESHOLD) : 0;
+			playTimeStartPercent = settings.getBoolean(PrefKeys.ENABLE_PLAYPERCENT, PrefDefaults.ENABLE_PLAYPERCENT) ? settings.getInt(PrefKeys.PLAYPERCENT_START, PrefDefaults.PLAYPERCENT_START) : 0;
 		} else if (PrefKeys.COVERLOADER_ANDROID.equals(key)) {
 			CoverCache.mCoverLoadMode = settings.getBoolean(PrefKeys.COVERLOADER_ANDROID, PrefDefaults.COVERLOADER_ANDROID) ? CoverCache.mCoverLoadMode | CoverCache.COVER_MODE_ANDROID : CoverCache.mCoverLoadMode & ~(CoverCache.COVER_MODE_ANDROID);
 			CoverCache.evictAll();
