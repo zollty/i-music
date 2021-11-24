@@ -235,6 +235,9 @@ THE SOFTWARE.
 	<string name="enable_shake_summary">Only active when music is playing. Does not work when screen is off on some devices.</string>
 	<string name="shake_action_title">Shake action</string>
 	<string name="shake_threshold_title">Shake force threshold</string>
+	<string name="enable_playpercent_title">Enable song play time percent limit</string>
+	<string name="enable_playpercent_summary">Limit song play time with the percent of original play time</string>
+	<string name="playpercent_threshold_title">Song play time percent limit</string>
 
 	<string name="misc_features">Miscellaneous features</string>
 	<string name="theme">Theme</string>

@@ -85,6 +85,10 @@ enum Action {
 	 */
 	ShowQueue,
 	/**
+	 * Hide the queue
+	 */
+	HideQueue,
+	/**
 	 * Toggle the controls in the playback activity.
 	 */
 	ToggleControls,

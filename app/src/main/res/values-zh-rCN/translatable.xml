@@ -184,6 +184,9 @@
   <string name="enable_shake_summary">只在音乐播放时可用。有些设备在屏幕关闭时不可用。</string>
   <string name="shake_action_title">摇动动作</string>
   <string name="shake_threshold_title">摇动力度阈值</string>
+  <string name="enable_playpercent_title">启用歌曲播放时间百分比</string>
+  <string name="enable_playpercent_summary">限制播放时间为原来时间的百分之几</string>
+  <string name="playpercent_threshold_title">播放时间百分比限制</string>
   <string name="misc_features">杂项特性</string>
   <string name="theme">主题</string>
   <string name="disable_lockscreen_title">禁用锁屏</string>

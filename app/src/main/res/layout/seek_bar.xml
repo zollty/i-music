@@ -25,29 +25,40 @@ THE SOFTWARE.
 	android:layout_height="wrap_content"
 	android:layout_width="fill_parent"
 	android:layout_gravity="top"
-	android:background="?overlay_background_color"
+	android:background="#11111111"
 	android:elevation="2dp"
 	android:orientation="horizontal">
+	<!--android:background="?overlay_background_color" 125E50-->
 	<TextView
 		android:id="@+id/elapsed"
 		android:layout_height="wrap_content"
 		android:layout_width="wrap_content"
 		android:layout_gravity="center"
+		android:textColor="#fff"
+		android:background="#33000000"
+		android:paddingRight="5dip"
+		android:layout_marginTop="2dip"
 		android:paddingLeft="5dip" />
 	<SeekBar
 		android:id="@+id/seek_bar"
 		android:layout_height="wrap_content"
 		android:layout_width="0px"
 		android:layout_gravity="center"
-		android:paddingTop="7dip"
+		android:paddingTop="12dip"
 		android:paddingBottom="7dip"
-		android:paddingLeft="18dip"
-		android:paddingRight="18dip"
+		android:paddingLeft="7dip"
+		android:paddingRight="5dip"
+		android:progressDrawable="@drawable/player_setting_bright_progressbar"
+		android:thumb="@drawable/player_settings_bright_thumb"
 		android:layout_weight="1" />
 	<TextView
 		android:id="@+id/duration"
 		android:layout_height="wrap_content"
 		android:layout_width="wrap_content"
 		android:layout_gravity="center"
+		android:textColor="#fff"
+		android:background="#33000000"
+		android:layout_marginTop="2dip"
+		android:paddingLeft="5dip"
 		android:paddingRight="5dip" />
 </LinearLayout>

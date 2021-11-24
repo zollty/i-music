@@ -54,6 +54,8 @@ public class PrefKeys {
 	public static final String SCROBBLE = "scrobble";
 	public static final String SHAKE_ACTION = "shake_action";
 	public static final String SHAKE_THRESHOLD = "shake_threshold";
+	public static final String ENABLE_PLAYPERCENT = "enable_playpercent";
+	public static final String PLAYPERCENT_THRESHOLD = "playpercent_threshold";
 	public static final String STOCK_BROADCAST = "stock_broadcast";
 	public static final String SWIPE_DOWN_ACTION = "swipe_down_action";
 	public static final String SWIPE_UP_ACTION = "swipe_up_action";

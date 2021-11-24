@@ -543,7 +543,7 @@ public class FullPlaybackActivity extends SlidingPlaybackActivity
 			mFormat = data.getFormat();
 
 			BastpUtil.GainValues rg = PlaybackService.get(this).getReplayGainValues(song.path);
-			mReplayGain = String.format("found=%s, track=%.2f, album=%.2f", rg.found, rg.track, rg.album);
+			mReplayGain = String.format("track=%.2f, album=%.2f", rg.track, rg.album);
 		}
 
 		mUiHandler.sendEmptyMessage(MSG_COMMIT_INFO);
@@ -631,6 +631,9 @@ public class FullPlaybackActivity extends SlidingPlaybackActivity
 				break;
 			case ShowQueue:
 				mSlidingView.expandSlide();
+				break;
+			case HideQueue:
+				mSlidingView.hideSlide();
 				break;
 			default:
 				super.performAction(action);

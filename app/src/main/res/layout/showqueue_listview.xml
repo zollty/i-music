@@ -8,6 +8,7 @@
 	android:listSelector="?android:attr/selectableItemBackground"
 	android:divider="@drawable/inset_divider"
 	android:dividerHeight="1dip"
+	android:background="?overlay_background_color"
 	dslv:drag_enabled="true"
 	dslv:drag_start_mode="onMove"
 	dslv:float_background_color="?float_color"

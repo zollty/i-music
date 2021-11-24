@@ -315,6 +315,10 @@ public final class PlaybackService extends Service
 	 */
 	private int mIdleTimeout;
 	/**
+	 * The percent time of a song to play.
+	 */
+	private int playTimePercent;
+	/**
 	 * The intent for the notification to execute, created by
 	 * {@link PlaybackService#createNotificationAction(SharedPreferences)}.
 	 */
@@ -464,7 +468,7 @@ public final class PlaybackService extends Service
 		mNotificationVisibility = Integer.parseInt(settings.getString(PrefKeys.NOTIFICATION_VISIBILITY, PrefDefaults.NOTIFICATION_VISIBILITY));
 		mScrobble = settings.getBoolean(PrefKeys.SCROBBLE, PrefDefaults.SCROBBLE);
 		mIdleTimeout = settings.getBoolean(PrefKeys.USE_IDLE_TIMEOUT, PrefDefaults.USE_IDLE_TIMEOUT) ? settings.getInt(PrefKeys.IDLE_TIMEOUT, PrefDefaults.IDLE_TIMEOUT) : 0;
-
+		playTimePercent = settings.getBoolean(PrefKeys.ENABLE_PLAYPERCENT, PrefDefaults.ENABLE_PLAYPERCENT) ? settings.getInt(PrefKeys.PLAYPERCENT_THRESHOLD, PrefDefaults.PLAYPERCENT_THRESHOLD) : 0;
 		CoverCache.mCoverLoadMode = settings.getBoolean(PrefKeys.COVERLOADER_ANDROID, PrefDefaults.COVERLOADER_ANDROID) ? CoverCache.mCoverLoadMode | CoverCache.COVER_MODE_ANDROID : CoverCache.mCoverLoadMode & ~(CoverCache.COVER_MODE_ANDROID);
 		CoverCache.mCoverLoadMode = settings.getBoolean(PrefKeys.COVERLOADER_VANILLA, PrefDefaults.COVERLOADER_VANILLA) ? CoverCache.mCoverLoadMode | CoverCache.COVER_MODE_VANILLA : CoverCache.mCoverLoadMode & ~(CoverCache.COVER_MODE_VANILLA);
 		CoverCache.mCoverLoadMode = settings.getBoolean(PrefKeys.COVERLOADER_SHADOW , PrefDefaults.COVERLOADER_SHADOW)  ? CoverCache.mCoverLoadMode | CoverCache.COVER_MODE_SHADOW  : CoverCache.mCoverLoadMode & ~(CoverCache.COVER_MODE_SHADOW);
@@ -850,9 +854,19 @@ public final class PlaybackService extends Service
 			seekToPosition(rg.seekStart);
 		}
 		mHandler.removeMessages(MSG_SEEK_TIMEOUT);
-		if (rg.seekEnd > 0) {
-			// Log.v("VanillaMusic", "wait to MSG_SEEK_TIMEOUT: " + (rg.seekEnd-rg.seekStart));
-			mHandler.sendEmptyMessageDelayed(MSG_SEEK_TIMEOUT, rg.seekEnd-rg.seekStart);
+		if (playTimePercent > 1) {
+			int endTime = (mMediaPlayer.getDuration() - rg.seekStart) * playTimePercent / 100;
+			if (endTime > 10) { // ignore less than 10s
+				mHandler.sendEmptyMessageDelayed(MSG_SEEK_TIMEOUT, endTime);
+			}
+		} else {
+			if (rg.seekEnd > 0) {
+				// Log.v("VanillaMusic", "wait to MSG_SEEK_TIMEOUT: " + (rg.seekEnd-rg.seekStart));
+				int endTime = rg.seekEnd - rg.seekStart;
+				if (endTime > 10 && endTime < mMediaPlayer.getDuration()) { // ignore less than 10s
+					mHandler.sendEmptyMessageDelayed(MSG_SEEK_TIMEOUT, endTime);
+				}
+			}
 		}
 	}
 
@@ -906,6 +920,8 @@ public final class PlaybackService extends Service
 		} else if (PrefKeys.USE_IDLE_TIMEOUT.equals(key) || PrefKeys.IDLE_TIMEOUT.equals(key)) {
 			mIdleTimeout = settings.getBoolean(PrefKeys.USE_IDLE_TIMEOUT, PrefDefaults.USE_IDLE_TIMEOUT) ? settings.getInt(PrefKeys.IDLE_TIMEOUT, PrefDefaults.IDLE_TIMEOUT) : 0;
 			userActionTriggered();
+		} else if (PrefKeys.ENABLE_PLAYPERCENT.equals(key) || PrefKeys.PLAYPERCENT_THRESHOLD.equals(key)) {
+			playTimePercent = settings.getBoolean(PrefKeys.ENABLE_PLAYPERCENT, PrefDefaults.ENABLE_PLAYPERCENT) ? settings.getInt(PrefKeys.PLAYPERCENT_THRESHOLD, PrefDefaults.PLAYPERCENT_THRESHOLD) : 0;
 		} else if (PrefKeys.COVERLOADER_ANDROID.equals(key)) {
 			CoverCache.mCoverLoadMode = settings.getBoolean(PrefKeys.COVERLOADER_ANDROID, PrefDefaults.COVERLOADER_ANDROID) ? CoverCache.mCoverLoadMode | CoverCache.COVER_MODE_ANDROID : CoverCache.mCoverLoadMode & ~(CoverCache.COVER_MODE_ANDROID);
 			CoverCache.evictAll();
@@ -1824,9 +1840,10 @@ public final class PlaybackService extends Service
 	 */
 	public Song rewindCurrentSong() {
 		int delta = SongTimeline.SHIFT_PREVIOUS_SONG;
-		if(isPlaying() && getPosition() > REWIND_AFTER_PLAYED_MS && getDuration() > REWIND_AFTER_PLAYED_MS*2) {
-			delta = SongTimeline.SHIFT_KEEP_SONG;
-		}
+		// modified by zollty: i don't need this feature
+//		if(isPlaying() && getPosition() > REWIND_AFTER_PLAYED_MS && getDuration() > REWIND_AFTER_PLAYED_MS*2) {
+//			delta = SongTimeline.SHIFT_KEEP_SONG;
+//		}
 		return shiftCurrentSong(delta);
 	}
 
@@ -2354,6 +2371,7 @@ public final class PlaybackService extends Service
 			break;
 		case ToggleControls:
 		case ShowQueue:
+		case HideQueue:
 			// These are NOOPs here and should be handled in FullPlaybackActivity
 			break;
 		case SeekForward:
