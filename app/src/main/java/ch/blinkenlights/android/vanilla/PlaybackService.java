@@ -851,19 +851,33 @@ public final class PlaybackService extends Service
 				// There is no need to cleanup mPreparedMediaPlayer
 			}
 		}
+		// Log.e("VanillaMusic", "doGapless: " + doGapless + ", " + mMediaPlayer.isPlaying() + ", " + mMediaPlayer.getDataSource());
+		// 切换歌曲时（包括第一次打开播放列表时）会触发 triggerGaplessUpdate()
+		// 准确地说，第一次打开或者歌曲播放完之后，会调用 processNewState -> setFinishAction -> timelineChanged -> triggerGaplessUpdate
+		// 下面4行代码的作用是：切歌时预先准备seek到合适的start位置。（可以不播放，只是先切换到这个位置，UI上暂时不会展示）
+		int start = getSeekStart();
+		if (start > 0) {
+			seekToPosition(start);
+		}
+	}
 
+	private int getSeekStart() {
 		BastpUtil.GainValues rg = getReplayGainValues(mMediaPlayer.getDataSource());
-		// mHandler.removeMessages(MSG_FADE_ON);
-		// Log.v("VanillaMusic", "doGapless: " + mMediaPlayer.getDataSource());
+		int start = 0;
+		if (playTimeStartPercent > 1) {
+			start = mMediaPlayer.getDuration() * playTimeStartPercent / 100;
+		}
+		return start > rg.seekStart ? start : rg.seekStart;
+	}
+
+	private void startPlayTimeout() {
+		mHandler.removeMessages(MSG_SEEK_TIMEOUT);
+		BastpUtil.GainValues rg = getReplayGainValues(mMediaPlayer.getDataSource());
 		int start = 0;
 		if (playTimeStartPercent > 1) {
 			start = mMediaPlayer.getDuration() * playTimeStartPercent / 100;
 		}
 		start = start > rg.seekStart ? start : rg.seekStart;
-		if (start > 0) {
-			seekToPosition(start);
-		}
-		mHandler.removeMessages(MSG_SEEK_TIMEOUT);
 		if (playTimeEndPercent > 1) {
 			int endTime = (mMediaPlayer.getDuration() - start) * playTimeEndPercent / 100;
 			if (endTime > 10) { // ignore less than 10s
@@ -1064,12 +1078,21 @@ public final class PlaybackService extends Service
 	 * 淡入
 	 */
 	void mplay(String s) {
-		if(!mMediaPlayer.isPlaying()) {
+		// Log.e("VanillaMusic", s + " - Play----------------- : " + mMediaPlayer.getDataSource());
+		// if 从暂停开始播放，else 切歌时就已经开始播放。无论如何，都是开始播放！
+		if (!mMediaPlayer.isPlaying()) {
 			mHandler.removeMessages(MSG_FADE_ON);
 			mFadeOut = 0.5f;
 			mHandler.sendEmptyMessage(MSG_FADE_ON);
 			// Log.e("VanillaMusic", s + " - Play----------------- MSG_FADE_ON: " + mMediaPlayer.getDataSource());
+			// 从暂停开始时，判断是否为从头开始播放，如果是，启用倒计时
+			if (mMediaPlayer.getCurrentPosition() < getSeekStart() + 1000) {
+				startPlayTimeout();
+			}
 			mMediaPlayer.start();
+
+		} else { // 切歌信号，启用倒计时
+			startPlayTimeout();
 		}
 	}
 
