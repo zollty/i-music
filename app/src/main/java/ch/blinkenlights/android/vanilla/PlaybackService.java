@@ -681,10 +681,26 @@ public final class PlaybackService extends Service
 		return mp;
 	}
 
-	public void prepareMediaPlayer(VanillaMediaPlayer mp, String path) throws IOException{
-		mp.setDataSource(path);
+	// 切换歌曲时（包括第一次打开播放列表时）会触发 triggerGaplessUpdate()
+	// 准确地说，第一次打开或者歌曲播放完之后，会调用 processNewState -> setFinishAction -> timelineChanged -> triggerGaplessUpdate
+	// 另外，注意下面两个方法：
+	// processNewState -> mplay("0->1（开始播放）")
+	// processSong -> mplay("processSong（下一首）")
+	// 如果是正在播放中，然后切歌，此时会执行 processSong -> mplay -> triggerGaplessUpdate
+	// 否则，如果是停止状态播放，此时会执行 processNewState -> triggerGaplessUpdate -> mplay
+	// 也就是说，如果一首歌想在播放前处理，不能用 triggerGaplessUpdate，因为在切歌时，歌曲已经在播放后(mplay)才执行这个doGapless方法。
+	// 要想在歌曲播放前就做处理，只能在processSong -> mplay之间的过程中进行，实现核心为：mPreparedMediaPlayer，
+	// 即，在切换歌曲时，实际上是使用了已经准备好的mPreparedMediaPlayer，直接替换当前的mMediaPlayer，
+	// 预准备，比如applyReplayGain，在之前都已经做好了，切歌时不需要做任何准备，直接播放就可以了。
+	// 预准备的方法，在prepareMediaPlayer里面实现。在这个方法里面可以预先设置好起始音量。
+	// 但是有个严重问题，底层MediaPlayer引擎不支持预先设置播放起始位置，seek必须要音源初始化之后才能调用，也就是说必须start播放后才能seek。
+	// prepareMediaPlayer()只有两个地方调用：1是在mPreparedMediaPlayer处于非播放状态时，会调用它；2是在准备下一首的时候triggerGaplessUpdate里面为下一首歌调用。
+	// 1.mPreparedMediaPlayer处于非播放状态：即要么播放器刚初始化，要么歌曲切换（上一首歌停止播放）。
+	public void prepareMediaPlayer(VanillaMediaPlayer mp, Song song) throws IOException{
+		mp.setDataSource(song.path);
 		mp.prepare();
 		applyReplayGain(mp);
+		//Log.e("VanillaMusic", "prepareMediaPlayer, id="+song.id+", path="+song.path+", mPendingSeek="+mPendingSeek);
 	}
 
 	/**
@@ -825,14 +841,14 @@ public final class PlaybackService extends Service
 		else {
 			Log.d("VanillaMusic", "Must not create new media player object");
 		}
-
+		// Log.e("VanillaMusic", "doGapless: " + doGapless + ", " + mMediaPlayer.isPlaying() + ", " + mMediaPlayer.getDataSource() + ", nextSong="+nextSong.path);
 		if(doGapless == true) {
 			try {
 				if(nextSong.path.equals(mPreparedMediaPlayer.getDataSource()) == false) {
 					// Prepared MP has a different data source: We need to re-initalize
 					// it and set it as the next MP for the active media player
 					mPreparedMediaPlayer.reset();
-					prepareMediaPlayer(mPreparedMediaPlayer, nextSong.path);
+					prepareMediaPlayer(mPreparedMediaPlayer, nextSong);
 					mMediaPlayer.setNextMediaPlayer(mPreparedMediaPlayer);
 				}
 				if(mMediaPlayer.hasNextMediaPlayer() == false) {
@@ -851,22 +867,15 @@ public final class PlaybackService extends Service
 				// There is no need to cleanup mPreparedMediaPlayer
 			}
 		}
-		// Log.e("VanillaMusic", "doGapless: " + doGapless + ", " + mMediaPlayer.isPlaying() + ", " + mMediaPlayer.getDataSource());
-		// 切换歌曲时（包括第一次打开播放列表时）会触发 triggerGaplessUpdate()
-		// 准确地说，第一次打开或者歌曲播放完之后，会调用 processNewState -> setFinishAction -> timelineChanged -> triggerGaplessUpdate
-		// 下面4行代码的作用是：切歌时预先准备seek到合适的start位置。（可以不播放，只是先切换到这个位置，UI上暂时不会展示）
-		int start = getSeekStart();
-		if (start > 0) {
-			seekToPosition(start);
-		}
 	}
 
-	private int getSeekStart() {
-		BastpUtil.GainValues rg = getReplayGainValues(mMediaPlayer.getDataSource());
+	private int getSeekStart(VanillaMediaPlayer mp) {
+		BastpUtil.GainValues rg = getReplayGainValues(mp.getDataSource());
 		int start = 0;
 		if (playTimeStartPercent > 1) {
-			start = mMediaPlayer.getDuration() * playTimeStartPercent / 100;
+			start = mp.getDuration() * playTimeStartPercent / 100;
 		}
+		Log.e("VanillaMusic", mp.getDataSource()+", playTimeStartPercent: " + playTimeStartPercent + ", Duration=" + mp.getDuration() + ", rg.seekStart=" + rg.seekStart);
 		return start > rg.seekStart ? start : rg.seekStart;
 	}
 
@@ -1086,7 +1095,7 @@ public final class PlaybackService extends Service
 			mHandler.sendEmptyMessage(MSG_FADE_ON);
 			// Log.e("VanillaMusic", s + " - Play----------------- MSG_FADE_ON: " + mMediaPlayer.getDataSource());
 			// 从暂停开始时，判断是否为从头开始播放，如果是，启用倒计时
-			if (mMediaPlayer.getCurrentPosition() < getSeekStart() + 1000) {
+			if (mMediaPlayer.getCurrentPosition() < getSeekStart(mMediaPlayer) + 1000) {
 				startPlayTimeout();
 			}
 			mMediaPlayer.start();
@@ -1454,9 +1463,13 @@ public final class PlaybackService extends Service
 				mPreparedMediaPlayer = tmpPlayer; // this was mMediaPlayer and is in reset() state
 			}
 			else {
-				prepareMediaPlayer(mMediaPlayer, song.path);
+				prepareMediaPlayer(mMediaPlayer, song);
 			}
-
+			// 下面4行代码的作用是：切歌时seek到合适的start位置。（可以不播放，只是先切换到这个位置，UI上暂时不会展示）
+			int start = getSeekStart(mMediaPlayer);
+			if (start > 0) {
+				mMediaPlayer.seekTo(start);
+			}
 
 			mMediaPlayerInitialized = true;
 			// Cancel any pending gapless updates and re-send them
@@ -1473,7 +1486,7 @@ public final class PlaybackService extends Service
 			}
 
 			if ((mState & FLAG_PLAYING) != 0)
-				mplay("processSong（下一首）");
+				mplay("processSong（下一首）"); // 注意是：上一首或者下一首！
 
 			if ((mState & FLAG_ERROR) != 0) {
 				mErrorMessage = null;
