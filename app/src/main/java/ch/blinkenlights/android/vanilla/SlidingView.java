@@ -201,6 +201,7 @@ public class SlidingView extends FrameLayout
 		mDelayedHide = false;
 
 		final int pxOff = mStages.get(stage);
+		// Log.e("VanillaMusic", mStages.toString()+" = mStages stage="+stage+", pxOff="+pxOff);
 		final int duration = mSliderAlwaysExpanded ? 0 : ANIMATION_DURATION;
 		this
 			.animate()
@@ -250,19 +251,19 @@ public class SlidingView extends FrameLayout
 		}
 	}
 
-
 	/**
 	 * Attempts to stack all views orizontally in the available space
 	 */
 	@Override
 	protected void onLayout(boolean changed, int left, int top, int right, int bottom) {
 		super.onLayout(changed, left, top, right, bottom);
-
+		// Log.e("VanillaMusic", mStages+" = mStages, " + ((View)(this.getParent())).getBottom()+" = this.getBottom, mMaxOffsetY="+mMaxOffsetY);
 		int viewHeight = getMeasuredHeight();
 		int childCount = getChildCount();
 		int topOffset = 0;
 		View lastChild = null;
 
+		ArrayList<Integer> mStagesTmp = new ArrayList<Integer>(mStages);
 		mStages.clear();
 
 		for (int i = 0; i < childCount ; i++) {
@@ -278,8 +279,14 @@ public class SlidingView extends FrameLayout
 				childBottom = viewHeight;
 
 			lastChild.layout(0, topOffset, childWidth, childBottom);
+			// Log.e("VanillaMusic", childBottom+"=childBottom, lastChild=" + lastChild);
 			mStages.add(viewHeight - childBottom);
 			topOffset += childHeight;
+		}
+		// one hide bug, caused by only mStages=[0,0]
+		if (mStages.size() == 2 && mStages.get(0) == 0 && mStages.get(1) == 0) {
+			mStages.clear();
+			mStages.addAll(mStagesTmp);
 		}
 
 		if (lastChild != null && mMaxOffsetY == 0) {
@@ -294,7 +301,7 @@ public class SlidingView extends FrameLayout
 				child.setLayoutParams(params);
 			}
 		}
-
+		// Log.e("VanillaMusic", mStages+" = mStages, onLayout end, changed="+changed);
 		if (changed) {
 			mMaxOffsetY = mStages.get(0);
 			setTranslationY(mMaxOffsetY);

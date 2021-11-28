@@ -875,7 +875,6 @@ public final class PlaybackService extends Service
 		if (playTimeStartPercent > 1) {
 			start = mp.getDuration() * playTimeStartPercent / 100;
 		}
-		Log.e("VanillaMusic", mp.getDataSource()+", playTimeStartPercent: " + playTimeStartPercent + ", Duration=" + mp.getDuration() + ", rg.seekStart=" + rg.seekStart);
 		return start > rg.seekStart ? start : rg.seekStart;
 	}
 
