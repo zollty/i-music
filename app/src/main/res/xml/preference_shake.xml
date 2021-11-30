@@ -69,4 +69,9 @@ THE SOFTWARE.
 		vanilla:sbpMaxValue="100"
 		vanilla:sbpSummaryValueMultiplication="1"
 		android:dependency="enable_playpercent" />
+	<CheckBoxPreference
+		android:key="enable_pickfavorite"
+		android:title="@string/enable_pickfavorite_title"
+		android:summary="@string/enable_pickfavorite_summary"
+		android:defaultValue="false" />
 </PreferenceScreen>

@@ -60,6 +60,7 @@ public class PrefDefaults {
 	public static final boolean ENABLE_PLAYPERCENT = false;
 	public static final int     PLAYPERCENT_START = 0;
 	public static final int     PLAYPERCENT_THRESHOLD = 100;
+	public static final boolean ENABLE_PICKFAVORITE = false;
 	public static final boolean STOCK_BROADCAST = true;
 	public static final Action  SWIPE_DOWN_ACTION = Action.Nothing;
 	public static final Action  SWIPE_UP_ACTION = Action.Nothing;

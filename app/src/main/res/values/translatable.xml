@@ -230,7 +230,7 @@ THE SOFTWARE.
 	<string name="default_action_title">Default action</string>
 	<string name="default_playlist_action_title">Default playlist action</string>
 
-	<string name="accelerometer_shake">Accelerometer shake</string>
+	<string name="accelerometer_shake">Special advanced features</string>
 	<string name="enable_shake_title">Enable accelerometer shake</string>
 	<string name="enable_shake_summary">Only active when music is playing. Does not work when screen is off on some devices.</string>
 	<string name="shake_action_title">Shake action</string>
@@ -239,6 +239,8 @@ THE SOFTWARE.
 	<string name="enable_playpercent_summary">Limit the start and end of song play time</string>
 	<string name="playpercent_start_title">Play start time (from what percent of the total time)</string>
 	<string name="playpercent_threshold_title">Play deadline (percentage of the effective time)</string>
+	<string name="enable_pickfavorite_title">Enable pick favorite song</string>
+	<string name="enable_pickfavorite_summary">Pick song by double-click power key (screen ON-to-OFF in 2s)</string>
 
 	<string name="misc_features">Miscellaneous features</string>
 	<string name="theme">Theme</string>

@@ -323,6 +323,10 @@ public final class PlaybackService extends Service
 	 */
 	private int playTimeStartPercent;
 	/**
+	 * Pick song by double-click power key (screen ON-to-OFF in 2s)
+	 */
+	private boolean enablePickfavorite;
+	/**
 	 * The intent for the notification to execute, created by
 	 * {@link PlaybackService#createNotificationAction(SharedPreferences)}.
 	 */
@@ -474,6 +478,7 @@ public final class PlaybackService extends Service
 		mIdleTimeout = settings.getBoolean(PrefKeys.USE_IDLE_TIMEOUT, PrefDefaults.USE_IDLE_TIMEOUT) ? settings.getInt(PrefKeys.IDLE_TIMEOUT, PrefDefaults.IDLE_TIMEOUT) : 0;
 		playTimeEndPercent = settings.getBoolean(PrefKeys.ENABLE_PLAYPERCENT, PrefDefaults.ENABLE_PLAYPERCENT) ? settings.getInt(PrefKeys.PLAYPERCENT_THRESHOLD, PrefDefaults.PLAYPERCENT_THRESHOLD) : 0;
 		playTimeStartPercent = settings.getBoolean(PrefKeys.ENABLE_PLAYPERCENT, PrefDefaults.ENABLE_PLAYPERCENT) ? settings.getInt(PrefKeys.PLAYPERCENT_START, PrefDefaults.PLAYPERCENT_START) : 0;
+		enablePickfavorite = settings.getBoolean(PrefKeys.ENABLE_PICKFAVORITE, PrefDefaults.ENABLE_PICKFAVORITE);
 		CoverCache.mCoverLoadMode = settings.getBoolean(PrefKeys.COVERLOADER_ANDROID, PrefDefaults.COVERLOADER_ANDROID) ? CoverCache.mCoverLoadMode | CoverCache.COVER_MODE_ANDROID : CoverCache.mCoverLoadMode & ~(CoverCache.COVER_MODE_ANDROID);
 		CoverCache.mCoverLoadMode = settings.getBoolean(PrefKeys.COVERLOADER_VANILLA, PrefDefaults.COVERLOADER_VANILLA) ? CoverCache.mCoverLoadMode | CoverCache.COVER_MODE_VANILLA : CoverCache.mCoverLoadMode & ~(CoverCache.COVER_MODE_VANILLA);
 		CoverCache.mCoverLoadMode = settings.getBoolean(PrefKeys.COVERLOADER_SHADOW , PrefDefaults.COVERLOADER_SHADOW)  ? CoverCache.mCoverLoadMode | CoverCache.COVER_MODE_SHADOW  : CoverCache.mCoverLoadMode & ~(CoverCache.COVER_MODE_SHADOW);
@@ -506,6 +511,7 @@ public final class PlaybackService extends Service
 		IntentFilter filter = new IntentFilter();
 		filter.addAction(AudioManager.ACTION_AUDIO_BECOMING_NOISY);
 		filter.addAction(Intent.ACTION_SCREEN_ON);
+		filter.addAction(Intent.ACTION_SCREEN_OFF);
 		registerReceiver(mReceiver, filter);
 
 		MediaLibrary.registerLibraryObserver(mObserver);
@@ -955,6 +961,8 @@ public final class PlaybackService extends Service
 		} else if (PrefKeys.ENABLE_PLAYPERCENT.equals(key) || PrefKeys.PLAYPERCENT_THRESHOLD.equals(key) || PrefKeys.PLAYPERCENT_START.equals(key)) {
 			playTimeEndPercent = settings.getBoolean(PrefKeys.ENABLE_PLAYPERCENT, PrefDefaults.ENABLE_PLAYPERCENT) ? settings.getInt(PrefKeys.PLAYPERCENT_THRESHOLD, PrefDefaults.PLAYPERCENT_THRESHOLD) : 0;
 			playTimeStartPercent = settings.getBoolean(PrefKeys.ENABLE_PLAYPERCENT, PrefDefaults.ENABLE_PLAYPERCENT) ? settings.getInt(PrefKeys.PLAYPERCENT_START, PrefDefaults.PLAYPERCENT_START) : 0;
+		} else if (PrefKeys.ENABLE_PICKFAVORITE.equals(key)) {
+			enablePickfavorite = settings.getBoolean(PrefKeys.ENABLE_PICKFAVORITE, PrefDefaults.ENABLE_PICKFAVORITE);
 		} else if (PrefKeys.COVERLOADER_ANDROID.equals(key)) {
 			CoverCache.mCoverLoadMode = settings.getBoolean(PrefKeys.COVERLOADER_ANDROID, PrefDefaults.COVERLOADER_ANDROID) ? CoverCache.mCoverLoadMode | CoverCache.COVER_MODE_ANDROID : CoverCache.mCoverLoadMode & ~(CoverCache.COVER_MODE_ANDROID);
 			CoverCache.evictAll();
@@ -1554,6 +1562,7 @@ public final class PlaybackService extends Service
 		return mTimeline.getSong(delta);
 	}
 
+	long sLastClickTime = 0;
 	private class Receiver extends BroadcastReceiver {
 		@Override
 		public void onReceive(Context content, Intent intent)
@@ -1565,7 +1574,27 @@ public final class PlaybackService extends Service
 					pause();
 				}
 			} else if (Intent.ACTION_SCREEN_ON.equals(action)) {
+				sLastClickTime = SystemClock.uptimeMillis();
 				userActionTriggered();
+			} else if (Intent.ACTION_SCREEN_OFF.equals(action)) {
+				if (SystemClock.uptimeMillis() - sLastClickTime < 2000) {
+					if (enablePickfavorite) { // add to favorite list
+						addToFavorite(getSong(0));
+					}
+					setCurrentSong(1);
+				}
+			}
+		}
+	}
+
+	protected void addToFavorite(Song song) {
+		if (song != null) {
+			long playlistId = Playlist.getFavoritesId(this, true);
+			PlaylistTask playlistTask = new PlaylistTask(playlistId, getString(R.string.playlist_favorites));
+			playlistTask.audioIds = new ArrayList<Long>();
+			playlistTask.audioIds.add(song.id);
+			if (!Playlist.isInPlaylist(this, playlistId, song)) {
+				Playlist.addToPlaylist(this, playlistTask.playlistId, playlistTask.audioIds);
 			}
 		}
 	}
