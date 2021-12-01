@@ -216,6 +216,12 @@ public class Song implements Comparable<Song> {
 		return song.id;
 	}
 
+	public static void evictExpiredCover(Context context) {
+		if (sCoverCache == null)
+			sCoverCache = new CoverCache(context.getApplicationContext());
+		sCoverCache.evictExpiredCover();
+	}
+
 	/**
 	 * @return track and disc number of this song within its album
 	 */
@@ -274,6 +280,7 @@ public class Song implements Comparable<Song> {
 	private Bitmap getCoverInternal(Context context, int size) {
 		// modified by zollty
 //		if (CoverCache.mCoverLoadMode == 0 || id <= -1 || (flags & FLAG_NO_COVER) != 0)
+		// id < -1时，意味着歌曲不是从我们自己的媒体库来的，为了简单起见，故不试图获取Cover
 		if (CoverCache.mCoverLoadMode == 0 || id <= -1)
 			return null;
 

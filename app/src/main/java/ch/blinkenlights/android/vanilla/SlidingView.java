@@ -283,8 +283,9 @@ public class SlidingView extends FrameLayout
 			mStages.add(viewHeight - childBottom);
 			topOffset += childHeight;
 		}
+		// Log.e("VanillaMusic", mStages+" = mStages= " + mStagesTmp);
 		// one hide bug, caused by only mStages=[0,0]
-		if (mStages.size() == 2 && mStages.get(0) == 0 && mStages.get(1) == 0) {
+		if (mStages.size() == 2 && mStages.get(0) == 0 && mStages.get(1) == 0 && !mStagesTmp.isEmpty()) {
 			mStages.clear();
 			mStages.addAll(mStagesTmp);
 		}

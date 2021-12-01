@@ -123,7 +123,7 @@ public final class CoverBitmap {
 	 * @return The image, or null if the song was null, or width or height
 	 * were less than 1
 	 */
-	public static Bitmap createBitmap(Context context, int style, Bitmap coverArt, Song song, int width, int height)
+	public static Bitmap createBitmap4FullPlaybackActivity(Context context, int style, Bitmap coverArt, Song song, int width, int height)
 	{
 		switch (style) {
 		case STYLE_OVERLAPPING_BOX:

@@ -37,6 +37,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -97,6 +98,7 @@ public class CoverCache {
 	 */
 	private static final File sDownloadsDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
 
+	private static int month = -1;
 
 	/**
 	 * Constructs a new BitmapCache object
@@ -108,9 +110,13 @@ public class CoverCache {
 		if (sBitmapDiskCache == null) {
 		    // modified by zollty 4 lines.
 			//sBitmapDiskCache = new BitmapDiskCache(context.getApplicationContext(), 25*1024*1024);
-			sBitmapDiskCache = new BitmapDiskCache(context.getApplicationContext(), 100*1024*1024);
+			sBitmapDiskCache = new BitmapDiskCache(context.getApplicationContext(), 300*1024*1024); // 300MB
 			File path = context.getApplicationContext().getDatabasePath("covercache.db");
 			Log.v("VanillaMusic", "the covercache.db is " + path.getAbsolutePath());
+		}
+		if (month == -1) {
+			Calendar cal = Calendar.getInstance();
+			month = cal.get(Calendar.MONTH);
 		}
 	}
 
@@ -180,11 +186,19 @@ public class CoverCache {
 	}
 
 	public Bitmap getCoverFromSong2(Context ctx, Song song, int size) {
-		Bitmap cover = getCoverFromDir( ctx,  song,  size);
+		Bitmap cover = getCoverFromDir(ctx, song, size);
 		if(cover != null) {
 			return cover;
 		}
 		return getCoverFromSong(ctx, song, size);
+	}
+
+	private int getSongIdHash(Song song, int picListSize) {
+		return (int) ((song.id + month) % picListSize);
+	}
+
+	public CoverKey getPicCoverKey(int picIndex, int size) {
+		return new CoverCache.CoverKey(19, picIndex, size);
 	}
 
 	public Bitmap getCoverFromDir(Context ctx, Song song, int size) {
@@ -193,7 +207,7 @@ public class CoverCache {
 		int msize = settings.getInt("mpic_size", 0);
 		if(msize > 0) {
 			// each song map a fixed value
-			int k = (int) (song.id % msize); // song.id = MediaLibrary.hash63(song.path)
+			int k = getSongIdHash(song, msize); // song.id = MediaLibrary.hash63(song.path)
 			// key is the id (base on k with song.path and pic files size)
 			CoverKey picKey = getPicCoverKey(k, size);//new CoverCache.CoverKey(0, k, size);
 			// Log.e("VanillaMusic", song.path + ": hash=" + picKey.hashCode() + ", picsize="+msize +", k="+k);
@@ -242,7 +256,7 @@ public class CoverCache {
 		msize = fileList.size();
 
 		// each song map a fixed value
-		int k = (int) (song.id % msize); // song.id = MediaLibrary.hash63(song.path)
+		int k = getSongIdHash(song, msize); // song.id = MediaLibrary.hash63(song.path)
 		File picFile = fileList.get(k);
 		// key is the id (base on k with song.path and pic files size)
 		CoverKey picKey = getPicCoverKey(k, size);//new CoverCache.CoverKey(0, k, size);
@@ -264,10 +278,6 @@ public class CoverCache {
 		return cover;
 	}
 
-	public CoverKey getPicCoverKey(int picIndex, int size) {
-		return new CoverCache.CoverKey(19, picIndex, size);
-	}
-
 	/**
 	 * Object used as cache key. Objects with the same
 	 * media type, id and size are considered to be equal
@@ -278,11 +288,12 @@ public class CoverCache {
 		public final long mediaId;
 		public final int hashCode;
 
-		CoverKey(int mediaType, long mediaId, int coverSize) {
+		CoverKey(int mediaType, long mediaId, int size) {
 			this.mediaType = mediaType;
 			this.mediaId = mediaId;
-			this.coverSize = size2Type(coverSize);
+			this.coverSize = size2Type(size); // coverSize<=646
 			// Integer.MAX_VALUE - 2147483647, mediaType=0~114, coverSize=0~646, mediaId=0~13646
+			// mediaId<=13646, mediaType<=114
 			hashCode = (100+this.mediaType)*(int)1e7+(100+this.coverSize)*(int)1e4+(int)this.mediaId;
 		}
 
@@ -322,6 +333,9 @@ public class CoverCache {
 
 	}
 
+	public void evictExpiredCover() {
+		sBitmapDiskCache.evictExpired();
+	}
 
 	private static class BitmapDiskCache extends SQLiteOpenHelper {
 		/**
@@ -426,6 +440,23 @@ public class CoverCache {
 		}
 
 		/**
+		 * evict all cache before this month.
+		 * e.g. a song Expired is 11.29+31d = 12.30, now is 12.1, we will evict it,
+		 * we use time 12.1+31d = 01.01 as the min expired time, all cache before 01.01 will be evicted!
+		 */
+		public void evictExpired() {
+			Calendar cal = Calendar.getInstance();
+			cal.set(Calendar.DAY_OF_MONTH, 1);
+			cal.set(Calendar.HOUR_OF_DAY, 0);
+			cal.set(Calendar.MINUTE, 0);
+			cal.set(Calendar.MILLISECOND, 0);
+			long firstTimeOfThisMonth = cal.getTimeInMillis() / 1000l;
+			SQLiteDatabase dbh = getWritableDatabase();
+			// direct delete regardless of capacity (mCacheSize)
+			dbh.delete(TABLE_NAME, "expires < ?", new String[] { Long.toString(firstTimeOfThisMonth + OBJECT_TTL)});
+		}
+
+		/**
 		 * Checks if given stamp is considered to be expired
 		 *
 		 * @param stamp The timestamp to check
@@ -478,8 +509,10 @@ public class CoverCache {
 			// created from the original source (and will not be re-compressed)
 			cover.compress(Bitmap.CompressFormat.JPEG, 85, out);
 
-			Random rnd = new Random();
-			long ttl = getUnixTime() + rnd.nextInt(OBJECT_TTL);
+			// modified by zollty, make cache last 31 days.
+//			Random rnd = new Random();
+//			long ttl = getUnixTime() + rnd.nextInt(OBJECT_TTL);
+			long ttl = getUnixTime() + OBJECT_TTL;
 
 			ContentValues values = new ContentValues();
 			values.put("id"     , key.hashCode());

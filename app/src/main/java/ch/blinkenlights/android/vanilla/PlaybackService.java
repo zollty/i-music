@@ -529,6 +529,7 @@ public final class PlaybackService extends Service
 		mLooper = thread.getLooper();
 		mHandler = new Handler(mLooper, this);
 
+		mHandler.sendEmptyMessage(MSG_INIT_COVER);
 		initWidgets();
 
 		updateState(state);
@@ -1666,6 +1667,7 @@ public final class PlaybackService extends Service
 
 	private static final int MSG_SEEK_TIMEOUT = 30;
 	private static final int MSG_FADE_ON = 31;
+	protected static final int MSG_INIT_COVER = 36;
 
 	@Override
 	public boolean handleMessage(Message message)
@@ -1712,6 +1714,9 @@ public final class PlaybackService extends Service
 				mHandler.sendMessageDelayed(mHandler.obtainMessage(MSG_FADE_ON, 0), 100);
 				refreshReplayGainValues();
 			}
+			break;
+		case MSG_INIT_COVER:
+			Song.evictExpiredCover(this);
 			break;
 		case MSG_PROCESS_STATE:
 			processNewState(message.arg1, message.arg2);
@@ -2259,7 +2264,7 @@ public final class PlaybackService extends Service
 	public Notification createNotification(Song song, int state, int mode)
 	{
 		final boolean playing = (state & FLAG_PLAYING) != 0;
-		Bitmap cover = song.getLargeCover(this);
+		Bitmap cover = song.getMediumCover(this);
 		if (cover == null) {
 			cover = BitmapFactory.decodeResource(getResources(), R.drawable.fallback_cover_large);
 		}

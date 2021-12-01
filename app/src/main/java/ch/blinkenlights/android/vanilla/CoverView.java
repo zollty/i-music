@@ -163,7 +163,7 @@ public final class CoverView extends View implements Handler.Callback {
 	 * Just calls querySongsInternal() via handler to ensure
 	 * that we do this in a background thread.
 	 */
-	public void querySongs() {
+	public void querySongs4FullPlaybackActivity() { // for cover load of (Full/Mini)PlaybackActivity
 		mHandler.removeMessages(MSG_QUERY_SONGS);
 		mHandler.sendEmptyMessage(MSG_QUERY_SONGS);
 	}
@@ -173,16 +173,14 @@ public final class CoverView extends View implements Handler.Callback {
 	 * The current implementation does not take this hint into
 	 * account as querySongsInternal() already tries to be efficient.
 	 */
-	public void replaceSong(int delta, Song song) {
-		querySongs();
+	public void replaceSong4FullPlaybackActivity(int delta, Song song) {
+		querySongs4FullPlaybackActivity(); // for cover load of (Full/Mini)PlaybackActivity
 	}
 
 	/**
 	 * Called by querySongs() - this runs in a background thread.
 	 */
 	private void querySongsInternal() {
-		DEBUG("querySongsInternal");
-
 		if (getWidth() < 1 || getHeight() < 1) {
 			mPendingQuery = true;
 			return;
@@ -212,11 +210,11 @@ public final class CoverView extends View implements Handler.Callback {
 	 * @param i the index to modify
 	 * @param song the source of the cover
 	 */
-	private void setSongBitmap(int i, Song song) {
+	private void setSongBitmap4FullPlaybackActivity(int i, Song song) { // for cover load of (Full/Mini)PlaybackActivity
 		Bitmap bitmap = mBitmapBucket.grepBitmap(song);
 
 		if (bitmap == null && song != null)
-			bitmap = generateBitmap(song);
+			bitmap = generateBitmap4FullPlaybackActivity(song);
 
 		mBitmapBucket.setSongBitmap(i, song, bitmap);
 		postInvalidate();
@@ -225,7 +223,7 @@ public final class CoverView extends View implements Handler.Callback {
 	/**
 	 * Returns a correctly sized cover bitmap for given song
 	 */
-	private Bitmap generateBitmap(Song song) {
+	private Bitmap generateBitmap4FullPlaybackActivity(Song song) { // for cover load of (Full/Mini)PlaybackActivity
 		int style = mCoverStyle;
 		Bitmap cover = song == null ? null : song.getLargeCover(mContext);
 
@@ -233,7 +231,7 @@ public final class CoverView extends View implements Handler.Callback {
 			cover = CoverBitmap.generateDefaultCover(mContext, getWidth(), getHeight());
 		}
 
-		return CoverBitmap.createBitmap(mContext, style, cover, song, getWidth(), getHeight());
+		return CoverBitmap.createBitmap4FullPlaybackActivity(mContext, style, cover, song, getWidth(), getHeight());
 	}
 
 
@@ -253,7 +251,7 @@ public final class CoverView extends View implements Handler.Callback {
 				mCallback.shiftCurrentSong(message.arg1);
 				break;
 			case MSG_SET_BITMAP:
-				setSongBitmap(message.arg1, (Song)message.obj);
+				setSongBitmap4FullPlaybackActivity(message.arg1, (Song)message.obj);
 				break;
 			case MSG_UI_LONG_CLICK:
 				if (!Looper.getMainLooper().equals(Looper.myLooper())) {
@@ -277,7 +275,7 @@ public final class CoverView extends View implements Handler.Callback {
 	protected void onSizeChanged(int width, int height, int oldWidth, int oldHeight) {
 		if (mPendingQuery && width != 0 && height != 0) {
 			mPendingQuery = false;
-			querySongs();
+			querySongs4FullPlaybackActivity();
 		}
 	}
 
