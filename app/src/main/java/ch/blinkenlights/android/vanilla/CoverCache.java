@@ -98,7 +98,7 @@ public class CoverCache {
 	 */
 	private static final File sDownloadsDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
 
-	private static int month = -1;
+	private static int month = 0;
 
 	/**
 	 * Constructs a new BitmapCache object
@@ -114,9 +114,9 @@ public class CoverCache {
 			File path = context.getApplicationContext().getDatabasePath("covercache.db");
 			Log.v("VanillaMusic", "the covercache.db is " + path.getAbsolutePath());
 		}
-		if (month == -1) {
+		if (month == 0) {
 			Calendar cal = Calendar.getInstance();
-			month = cal.get(Calendar.MONTH);
+			month = cal.get(Calendar.MONTH) + 1;
 		}
 	}
 
@@ -194,7 +194,7 @@ public class CoverCache {
 	}
 
 	private int getSongIdHash(Song song, int picListSize) {
-		return (int) ((song.id + month) % picListSize);
+		return (int) ((song.id/month) % picListSize);
 	}
 
 	public CoverKey getPicCoverKey(int picIndex, int size) {
