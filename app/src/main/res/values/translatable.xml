@@ -241,6 +241,8 @@ THE SOFTWARE.
 	<string name="playpercent_threshold_title">Play deadline (percentage of the effective time)</string>
 	<string name="enable_pickfavorite_title">Enable pick favorite song</string>
 	<string name="enable_pickfavorite_summary">Pick song by double-click power key (screen ON-to-OFF in 2s)</string>
+	<string name="reinit_cover_seed_title">Reassign song cover</string>
+	<string name="reinit_cover_seed_summary">Redistribute song cover by generating a random number seed</string>
 
 	<string name="misc_features">Miscellaneous features</string>
 	<string name="theme">Theme</string>

@@ -216,12 +216,6 @@ public class Song implements Comparable<Song> {
 		return song.id;
 	}
 
-	public static void evictExpiredCover(Context context) {
-		if (sCoverCache == null)
-			sCoverCache = new CoverCache(context.getApplicationContext());
-		sCoverCache.evictExpiredCover();
-	}
-
 	/**
 	 * @return track and disc number of this song within its album
 	 */

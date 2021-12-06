@@ -190,6 +190,8 @@
   <string name="playpercent_threshold_title">播放截止时间（播放有效时间的百分之几）</string>
   <string name="enable_pickfavorite_title">启用挑歌模式</string>
   <string name="enable_pickfavorite_summary">通过按电源键(屏幕2秒内ON-to-OFF)来挑歌</string>
+  <string name="reinit_cover_seed_title">重新分配歌曲封面</string>
+  <string name="reinit_cover_seed_summary">通过生成随机数seed来重新分配歌曲封面</string>
   <string name="misc_features">杂项特性</string>
   <string name="theme">主题</string>
   <string name="disable_lockscreen_title">禁用锁屏</string>

@@ -58,6 +58,7 @@ public class PrefKeys {
 	public static final String PLAYPERCENT_START = "playpercent_start";
 	public static final String PLAYPERCENT_THRESHOLD = "playpercent_threshold";
 	public static final String ENABLE_PICKFAVORITE = "enable_pickfavorite";
+	public static final String REINIT_COVER_SEED = "reinit_cover_seed";
 	public static final String STOCK_BROADCAST = "stock_broadcast";
 	public static final String SWIPE_DOWN_ACTION = "swipe_down_action";
 	public static final String SWIPE_UP_ACTION = "swipe_up_action";

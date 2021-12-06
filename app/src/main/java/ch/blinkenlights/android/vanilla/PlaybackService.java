@@ -936,10 +936,9 @@ public final class PlaybackService extends Service
 		}
 	}
 
-
-	private void loadPreference(String key)
+	@Override
+	public void onSharedPreferenceChanged(SharedPreferences settings, String key)
 	{
-		SharedPreferences settings = SharedPrefHelper.getSettings(this);
 		if (PrefKeys.HEADSET_PAUSE.equals(key)) {
 			mHeadsetPause = settings.getBoolean(PrefKeys.HEADSET_PAUSE, PrefDefaults.HEADSET_PAUSE);
 		} else if (PrefKeys.NOTIFICATION_ACTION.equals(key)) {
@@ -964,6 +963,8 @@ public final class PlaybackService extends Service
 			playTimeStartPercent = settings.getBoolean(PrefKeys.ENABLE_PLAYPERCENT, PrefDefaults.ENABLE_PLAYPERCENT) ? settings.getInt(PrefKeys.PLAYPERCENT_START, PrefDefaults.PLAYPERCENT_START) : 0;
 		} else if (PrefKeys.ENABLE_PICKFAVORITE.equals(key)) {
 			enablePickfavorite = settings.getBoolean(PrefKeys.ENABLE_PICKFAVORITE, PrefDefaults.ENABLE_PICKFAVORITE);
+		} else if (PrefKeys.REINIT_COVER_SEED.equals(key)) {
+			CoverCache.reinitCoverSeed(settings);
 		} else if (PrefKeys.COVERLOADER_ANDROID.equals(key)) {
 			CoverCache.mCoverLoadMode = settings.getBoolean(PrefKeys.COVERLOADER_ANDROID, PrefDefaults.COVERLOADER_ANDROID) ? CoverCache.mCoverLoadMode | CoverCache.COVER_MODE_ANDROID : CoverCache.mCoverLoadMode & ~(CoverCache.COVER_MODE_ANDROID);
 			CoverCache.evictAll();
@@ -1615,12 +1616,6 @@ public final class PlaybackService extends Service
 
 	}
 
-	@Override
-	public void onSharedPreferenceChanged(SharedPreferences settings, String key)
-	{
-		loadPreference(key);
-	}
-
 	/**
 	 * Releases mWakeLock and closes any open AudioFx sessions
 	 */
@@ -1716,7 +1711,11 @@ public final class PlaybackService extends Service
 			}
 			break;
 		case MSG_INIT_COVER:
-			Song.evictExpiredCover(this);
+			SharedPreferences settings = SharedPrefHelper.getSettings(this);
+			int seed = settings.getInt("mpic_seed", 0);
+			if (seed == 0) { // init seed
+				CoverCache.reinitCoverSeed(settings);
+			}
 			break;
 		case MSG_PROCESS_STATE:
 			processNewState(message.arg1, message.arg2);

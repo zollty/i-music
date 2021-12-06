@@ -185,6 +185,14 @@ public class CoverCache {
 		}
 	}
 
+	public static void reinitCoverSeed(SharedPreferences settings) {
+		Random rad = new Random();
+		int seed = rad.nextInt(1000000);
+		SharedPreferences.Editor ed = settings.edit();
+		ed.putInt("mpic_seed", seed);
+		ed.apply();
+	}
+
 	public Bitmap getCoverFromSong2(Context ctx, Song song, int size) {
 		Bitmap cover = getCoverFromDir(ctx, song, size);
 		if(cover != null) {
@@ -193,8 +201,11 @@ public class CoverCache {
 		return getCoverFromSong(ctx, song, size);
 	}
 
-	private int getSongIdHash(Song song, int picListSize) {
-		return (int) ((song.id/month) % picListSize);
+	/**
+	 * @return (picIndex) a number between 0 and picListSize-1
+	 */
+	private int getSongIdHash(Song song, int picListSize, int seed) {
+		return (int) ((song.id/month + seed) % picListSize);
 	}
 
 	public CoverKey getPicCoverKey(int picIndex, int size) {
@@ -205,9 +216,13 @@ public class CoverCache {
 		// 1、查询缓存，必须要先获取key，key是根据歌曲文件路径和图片文件size计算出来的
 		SharedPreferences settings = SharedPrefHelper.getSettings(ctx);
 		int msize = settings.getInt("mpic_size", 0);
+		int seed = settings.getInt("mpic_seed", 0);
+		if (seed == 0) { // init seed
+			reinitCoverSeed(settings);
+		}
 		if(msize > 0) {
 			// each song map a fixed value
-			int k = getSongIdHash(song, msize); // song.id = MediaLibrary.hash63(song.path)
+			int k = getSongIdHash(song, msize, seed); // song.id = MediaLibrary.hash63(song.path)
 			// key is the id (base on k with song.path and pic files size)
 			CoverKey picKey = getPicCoverKey(k, size);//new CoverCache.CoverKey(0, k, size);
 			// Log.e("VanillaMusic", song.path + ": hash=" + picKey.hashCode() + ", picsize="+msize +", k="+k);
@@ -253,10 +268,14 @@ public class CoverCache {
 				return o1.getName().compareTo(o2.getName());
 			}
 		});
-		msize = fileList.size();
-
+		if (msize != fileList.size()) {
+			msize = fileList.size();
+			SharedPreferences.Editor ed = settings.edit();
+			ed.putInt("mpic_size", msize);
+			ed.apply();
+		}
 		// each song map a fixed value
-		int k = getSongIdHash(song, msize); // song.id = MediaLibrary.hash63(song.path)
+		int k = getSongIdHash(song, msize, seed); // song.id = MediaLibrary.hash63(song.path)
 		File picFile = fileList.get(k);
 		// key is the id (base on k with song.path and pic files size)
 		CoverKey picKey = getPicCoverKey(k, size);//new CoverCache.CoverKey(0, k, size);
@@ -272,9 +291,6 @@ public class CoverCache {
 		} catch (Exception e) {
 			Log.v("VanillaMusic", "Loading coverart for "+song+" failed with exception " + e);
 		}
-		SharedPreferences.Editor ed = settings.edit();
-		ed.putInt("mpic_size", msize);
-		ed.apply();
 		return cover;
 	}
 
@@ -333,10 +349,6 @@ public class CoverCache {
 
 	}
 
-	public void evictExpiredCover() {
-		sBitmapDiskCache.evictExpired();
-	}
-
 	private static class BitmapDiskCache extends SQLiteOpenHelper {
 		/**
 		 * Maximal cache size to use in bytes
@@ -365,7 +377,7 @@ public class CoverCache {
 		/**
 		 * Restrict lifetime of cached objects to, at most, OBJECT_TTL
 		 */
-		private final static int OBJECT_TTL = 86400*8;
+		private final static int OBJECT_TTL = 86400*28;
 
 		/**
 		 * Creates a new BitmapDiskCache instance
@@ -402,28 +414,28 @@ public class CoverCache {
 		 */
 		private void trim(long maxCacheSize) {
 			SQLiteDatabase dbh = getWritableDatabase();
-			long availableSpace = maxCacheSize - getUsedSpace();
+			long availableSpace = maxCacheSize - getUsedSpace(dbh);
+			if (availableSpace > 0) {
+				return;
+			}
+			// Try to evict all expired entries first
+			int affected = dbh.delete(TABLE_NAME, "expires < ? LIMIT 10", new String[] { Long.toString(getUnixTime())});
+			if (affected > 0)
+				availableSpace = maxCacheSize - getUsedSpace(dbh);
 
-			if (maxCacheSize == 0) {
-				// Just drop the whole database (probably a call from evictAll)
-				dbh.delete(TABLE_NAME, "1", null);
-			} else if (availableSpace < 0) {
-				// Try to evict all expired entries first
-				int affected = dbh.delete(TABLE_NAME, "expires < ?", new String[] { Long.toString(getUnixTime())});
-				if (affected > 0)
-					availableSpace = maxCacheSize - getUsedSpace();
-
-				if (availableSpace < 0) {
-					// still not enough space: purge by expire date (this kills random rows as expire times are random)
-					Cursor cursor = dbh.query(TABLE_NAME, META_PROJECTION, null, null, null, null, "expires ASC");
-					if (cursor != null) {
-						while (cursor.moveToNext() && availableSpace < 0) {
-							int id = cursor.getInt(0);
-							int size = cursor.getInt(1);
-							dbh.delete(TABLE_NAME, "id=?", new String[] { Long.toString(id) });
-							availableSpace += size;
-						}
-						cursor.close();
+			if (availableSpace < 0) {
+				// still not enough space: purge by expire date (this kills random rows as expire times are random)
+				Cursor cursor = dbh.query(TABLE_NAME, META_PROJECTION, null, null, null, null, "expires ASC");
+				if (cursor != null) {
+					int max = 3;
+					StringBuilder argsb = new StringBuilder();
+					while (cursor.moveToNext() && max-- > 0) {
+						int id = cursor.getInt(0);
+						argsb.append(id).append(",");
+					}
+					cursor.close();
+					if (argsb.length() > 0) {
+						dbh.delete(TABLE_NAME, "id in (" + argsb.substring(0, argsb.length() - 1) + ")", null);
 					}
 				}
 			}
@@ -434,26 +446,11 @@ public class CoverCache {
 		 */
 		public void evictAll() {
 			// purge all cached entries
-			trim(0);
-			// and release the dbh
-			getWritableDatabase().close();
-		}
-
-		/**
-		 * evict all cache before this month.
-		 * e.g. a song Expired is 11.29+31d = 12.30, now is 12.1, we will evict it,
-		 * we use time 12.1+31d = 01.01 as the min expired time, all cache before 01.01 will be evicted!
-		 */
-		public void evictExpired() {
-			Calendar cal = Calendar.getInstance();
-			cal.set(Calendar.DAY_OF_MONTH, 1);
-			cal.set(Calendar.HOUR_OF_DAY, 0);
-			cal.set(Calendar.MINUTE, 0);
-			cal.set(Calendar.MILLISECOND, 0);
-			long firstTimeOfThisMonth = cal.getTimeInMillis() / 1000l;
 			SQLiteDatabase dbh = getWritableDatabase();
-			// direct delete regardless of capacity (mCacheSize)
-			dbh.delete(TABLE_NAME, "expires < ?", new String[] { Long.toString(firstTimeOfThisMonth + OBJECT_TTL)});
+			// Just drop the whole database (probably a call from evictAll)
+			dbh.delete(TABLE_NAME, "1", null);
+			// and release the dbh
+			dbh.close();
 		}
 
 		/**
@@ -480,9 +477,8 @@ public class CoverCache {
 		 *
 		 * @return long the space used in bytes
 		 */
-		private long getUsedSpace() {
+		private long getUsedSpace(SQLiteDatabase dbh) {
 			long usedSpace = -1;
-			SQLiteDatabase dbh = getWritableDatabase();
 			Cursor cursor = dbh.query(TABLE_NAME, new String[]{"SUM(size)"}, null, null, null, null, null);
 			if (cursor != null) {
 				if (cursor.moveToNext())

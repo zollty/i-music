@@ -247,7 +247,7 @@ public final class CoverView extends View implements Handler.Callback {
 				querySongsInternal();
 				break;
 			case MSG_SHIFT_SONG:
-				DEBUG("Shifting to song: "+message.arg1);
+				// DEBUG("Shifting to song: "+message.arg1);
 				mCallback.shiftCurrentSong(message.arg1);
 				break;
 			case MSG_SET_BITMAP:
@@ -342,7 +342,7 @@ public final class CoverView extends View implements Handler.Callback {
 				if (coverIntent != 0 && ASYNC_SWITCH < 0)
 					mHandler.sendMessage(mHandler.obtainMessage(MSG_SHIFT_SONG, coverIntent, 0));
 
-				DEBUG("Scroll finished, invalidating all snapshot bitmaps!");
+				// DEBUG("Scroll finished, invalidating all snapshot bitmaps!");
 			}
 			invalidate();
 		}
@@ -487,11 +487,6 @@ public final class CoverView extends View implements Handler.Callback {
 		final float distanceY = mLastMotionY - mInitialMotionY;
 		return Math.abs(distanceX) + Math.abs(distanceY) < TOUCH_MAX_SCROLL_PX;
 	}
-
-	private void DEBUG(String s) {
-		// Log.v("VanillaMusicCover", s);
-	}
-
 
 	/**
 	 * Class to handle access to our bitmap and song mapping
