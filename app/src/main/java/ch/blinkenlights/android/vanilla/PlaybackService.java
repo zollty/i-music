@@ -1716,6 +1716,7 @@ public final class PlaybackService extends Service
 			if (seed == 0) { // init seed
 				CoverCache.reinitCoverSeed(settings);
 			}
+			Song.evictExpired(this);
 			break;
 		case MSG_PROCESS_STATE:
 			processNewState(message.arg1, message.arg2);

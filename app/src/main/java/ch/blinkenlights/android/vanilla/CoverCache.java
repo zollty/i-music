@@ -185,6 +185,12 @@ public class CoverCache {
 		}
 	}
 
+	public static void evictExpired() {
+		if (sBitmapDiskCache != null) {
+			sBitmapDiskCache.evictExpired();
+		}
+	}
+
 	public static void reinitCoverSeed(SharedPreferences settings) {
 		Random rad = new Random();
 		int seed = rad.nextInt(1000000);
@@ -419,7 +425,7 @@ public class CoverCache {
 				return;
 			}
 			// Try to evict all expired entries first
-			int affected = dbh.delete(TABLE_NAME, "expires < ? LIMIT 10", new String[] { Long.toString(getUnixTime())});
+			int affected = deleteExpiredWithLimit(dbh, 10);
 			if (affected > 0)
 				availableSpace = maxCacheSize - getUsedSpace(dbh);
 
@@ -427,7 +433,7 @@ public class CoverCache {
 				// still not enough space: purge by expire date (this kills random rows as expire times are random)
 				Cursor cursor = dbh.query(TABLE_NAME, META_PROJECTION, null, null, null, null, "expires ASC");
 				if (cursor != null) {
-					int max = 3;
+					int max = 10;
 					StringBuilder argsb = new StringBuilder();
 					while (cursor.moveToNext() && max-- > 0) {
 						int id = cursor.getInt(0);
@@ -451,6 +457,28 @@ public class CoverCache {
 			dbh.delete(TABLE_NAME, "1", null);
 			// and release the dbh
 			dbh.close();
+		}
+
+		public void evictExpired() {
+			deleteExpiredWithLimit(getWritableDatabase(), 10);
+		}
+
+		// equals: dbh.delete(TABLE_NAME, "expires < ? LIMIT 10", new String[] { Long.toString(getUnixTime())});
+		private int deleteExpiredWithLimit(SQLiteDatabase dbh, int size) {
+			Cursor cursor = dbh.query(TABLE_NAME, META_PROJECTION, "expires < ? LIMIT " + size, new String[] { Long.toString(getUnixTime())}, null, null, null);
+			if (cursor != null) {
+				StringBuilder argsb = new StringBuilder();
+				while (cursor.moveToNext()) {
+					int id = cursor.getInt(0);
+					argsb.append(id).append(",");
+				}
+				cursor.close();
+				if (argsb.length() > 0) {
+					return dbh.delete(TABLE_NAME, "id in (" + argsb.substring(0, argsb.length() - 1) + ")", null);
+					// Log.e("VanillaMusic", count + " = will delete: " + argsb);
+				}
+			}
+			return 0;
 		}
 
 		/**

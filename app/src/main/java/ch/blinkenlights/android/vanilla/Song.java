@@ -264,6 +264,12 @@ public class Song implements Comparable<Song> {
 		return sCoverCache.getFontCoverFromSong(context, this, CoverCache.SIZE_SMALL);
 	}
 
+	public static void evictExpired(Context context) {
+		if (sCoverCache == null)
+			sCoverCache = new CoverCache(context.getApplicationContext());
+		sCoverCache.evictExpired();
+	}
+
 	/**
 	 * Internal implementation of getCover
 	 *
