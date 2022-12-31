@@ -22,7 +22,9 @@
 
 package ch.blinkenlights.android.vanilla;
 
+import android.app.PendingIntent;
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.support.v4.media.session.MediaSessionCompat;
 import android.support.v4.media.session.PlaybackStateCompat;
@@ -46,7 +48,16 @@ public class MediaSessionTracker {
 
 	MediaSessionTracker(Context context) {
 		mContext = context;
-		mMediaSession = new MediaSessionCompat(mContext, "Vanilla Music Media Session");
+		if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.S) {
+			Intent mediaButtonIntent = new Intent(Intent.ACTION_MEDIA_BUTTON);
+			// the associated intent will be handled by the component being registered
+			PendingIntent mbrIntent = PendingIntent.getBroadcast(context,
+					0/* requestCode, ignored */, mediaButtonIntent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
+			mMediaSession = new MediaSessionCompat(mContext, "Vanilla Music Media Session", null, mbrIntent);
+		} else {
+			mMediaSession = new MediaSessionCompat(mContext, "Vanilla Music Media Session");
+		}
+
 		mMediaSession.setCallback(new MediaSessionCompat.Callback() {
 			@Override
 			public void onPause() {

@@ -20,20 +20,36 @@ package ch.blinkenlights.bastp;
 
 import android.util.Log;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Enumeration;
+import java.util.Iterator;
 
+import org.jaudiotagger.audio.mp3.MP3AudioHeader;
+import org.jaudiotagger.audio.mp3.MP3File;
+import org.jaudiotagger.tag.Tag;
+import org.jaudiotagger.tag.TagField;
+import org.jaudiotagger.tag.datatype.AbstractDataType;
+import org.jaudiotagger.tag.id3.AbstractID3v2Frame;
+import org.jaudiotagger.tag.id3.AbstractID3v2Tag;
+import org.jaudiotagger.tag.id3.AbstractTagFrameBody;
+import org.jaudiotagger.tag.id3.ID3v24Tag;
+import org.jaudiotagger.tag.id3.TyerTdatAggregatedFrame;
+import org.jaudiotagger.tag.id3.framebody.FrameBodyCOMM;
+import org.jaudiotagger.tag.id3.framebody.FrameBodyTXXX;
 
 
 public class ID3v2File extends Common {
-	private static final int ID3_ENC_LATIN   = 0x00;
-	private static final int ID3_ENC_UTF16   = 0x01;
+	private static final int ID3_ENC_LATIN = 0x00;
+	private static final int ID3_ENC_UTF16 = 0x01;
 	private static final int ID3_ENC_UTF16BE = 0x02;
-	private static final int ID3_ENC_UTF8    = 0x03;
+	private static final int ID3_ENC_UTF8 = 0x03;
 	private static final HashMap<String, String> sOggNames;
+
 	static {
 		// ID3v2.3 -> ogg mapping
 		sOggNames = new HashMap<String, String>();
@@ -55,12 +71,14 @@ public class ID3v2File extends Common {
 		sOggNames.put("TRK", "TRACKNUMBER");
 		sOggNames.put("TCO", "GENRE");
 		sOggNames.put("TCM", "COMPOSER");
+		sOggNames.put("COMM", "COMMENT");
 	}
 
 	// Holds a key-value pair
 	private class TagItem {
 		String key;
 		String value;
+
 		public TagItem(String key, String value) {
 			this.key = key;
 			this.value = value;
@@ -68,6 +86,57 @@ public class ID3v2File extends Common {
 	}
 
 	public ID3v2File() {
+	}
+
+	private String parseKey(String key) {
+		String k2 = (String) sOggNames.get(key);
+		if (k2 != null) {
+			return k2;
+		}
+		return key;
+	}
+
+	public HashMap getTags2(String path) throws IOException {
+		HashMap tags = new HashMap();
+		try {
+			final MP3File tmpMP3 = new MP3File(new File(path), MP3File.LOAD_IDV2TAG, true);
+
+			tags.put("duration", tmpMP3.getAudioHeader().getTrackLength());
+
+			AbstractID3v2Tag tag = tmpMP3.getID3v2Tag();
+			Iterator ie = tag.iterator();
+			while (ie.hasNext()) {
+				Object o = ie.next();
+				//SingleFrames
+				if (o instanceof AbstractID3v2Frame) {
+					// if(tf.getId().substring(0,1).equals("COMM")) {
+					AbstractID3v2Frame tf = (AbstractID3v2Frame) o;
+					addTagEntry(tags, parseKey(tf.getId()), tf.getContent());
+				} else if (o instanceof TyerTdatAggregatedFrame) {
+					for (AbstractID3v2Frame next : ((TyerTdatAggregatedFrame) o).getFrames()) {
+						addTagEntry(tags, parseKey(next.getId()), next.getContent());
+					}
+				}
+				//MultiFrames
+				else if (o instanceof ArrayList) {
+					for (AbstractID3v2Frame frame : (ArrayList<AbstractID3v2Frame>) o) {
+						AbstractTagFrameBody bo = frame.getBody();
+						if(bo instanceof FrameBodyTXXX) {
+							FrameBodyTXXX txxx = (FrameBodyTXXX) bo;
+							if(txxx.getDescription().matches("^(?i)REPLAYGAIN_(ALBUM|TRACK)_GAIN$")) {
+								addTagEntry(tags, txxx.getDescription().toUpperCase(), txxx.getUserFriendlyValue());
+							}
+						} else {
+							addTagEntry(tags, parseKey(frame.getId()), frame.getContent());
+						}
+					}
+				}
+			}
+			//Log.e("VanillaMusic", path + " --tags: " + tags);
+		} catch (Exception e) {
+			Log.e("VanillaMusic", path + " Unable to extract tag " + e);
+		}
+		return tags;
 	}
 
 	public HashMap getTags(RandomAccessFile s) throws IOException {

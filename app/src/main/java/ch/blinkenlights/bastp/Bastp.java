@@ -35,7 +35,7 @@ public class Bastp {
 		HashMap tags = new HashMap();
 		try {
 			RandomAccessFile ra = new RandomAccessFile(fname, "r");
-			tags = getTags(ra);
+			tags = getTags(fname, ra);
 			ra.close();
 		}
 		catch(Exception e) {
@@ -45,7 +45,7 @@ public class Bastp {
 		return tags;
 	}
 	
-	public HashMap getTags(RandomAccessFile s) {
+	public HashMap getTags(String fname, RandomAccessFile s) {
 		HashMap tags = new HashMap();
 		byte[] file_ff = new byte[12];
 		
@@ -71,15 +71,16 @@ public class Bastp {
 				tags.put("type", "MP3/Lame");
 			}
 			else if(magic.substring(0,3).equals("ID3")) {
-				tags = (new ID3v2File()).getTags(s);
-				if(tags.containsKey("_hdrlen")) {
-					Long hlen = Long.parseLong( tags.get("_hdrlen").toString(), 10 );
-					HashMap lameInfo = (new LameHeader()).parseLameHeader(s, hlen);
-					/* add tags from lame header if not already present */
-					inheritTag("REPLAYGAIN_TRACK_GAIN", lameInfo, tags);
-					inheritTag("REPLAYGAIN_ALBUM_GAIN", lameInfo, tags);
-					inheritTag("duration", lameInfo, tags);
-				}
+				tags = (new ID3v2File()).getTags2(fname);
+//				tags = (new ID3v2File()).getTags(s);
+//				if(tags.containsKey("_hdrlen")) {
+//					Long hlen = Long.parseLong( tags.get("_hdrlen").toString(), 10 );
+//					HashMap lameInfo = (new LameHeader()).parseLameHeader(s, hlen);
+//					/* add tags from lame header if not already present */
+//					inheritTag("REPLAYGAIN_TRACK_GAIN", lameInfo, tags);
+//					inheritTag("REPLAYGAIN_ALBUM_GAIN", lameInfo, tags);
+//					inheritTag("duration", lameInfo, tags);
+//				}
 				tags.put("type", "MP3/ID3v2");
 			}
 			else if(magic.substring(4,8).equals("ftyp") && (

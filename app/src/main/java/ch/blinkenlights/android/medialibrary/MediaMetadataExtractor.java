@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016 - 2017 Adrian Ulrich <adrian@blinkenlights.ch>
+ * Copyright (C) 2016 - 2022 Adrian Ulrich <adrian@blinkenlights.ch>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -26,6 +26,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import java.io.FileInputStream;
+import java.io.IOException;
 
 import android.util.Log;
 public class MediaMetadataExtractor extends HashMap<String, ArrayList<String>> {
@@ -316,7 +317,11 @@ public class MediaMetadataExtractor extends HashMap<String, ArrayList<String>> {
 		    mediaTags.extractMetadata(MediaMetadataRetriever.METADATA_KEY_HAS_AUDIO) == null ||
 		    mediaTags.extractMetadata(MediaMetadataRetriever.METADATA_KEY_HAS_VIDEO) != null ||
 		    mediaTags.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION) == null) {
-		    mediaTags.release();
+			try {
+				mediaTags.release();
+			} catch (Exception e) {
+				Log.v("VanillaMusic", "mediaTags.release() failed: " + e);
+			}
 			return;
 		}
 
@@ -361,7 +366,11 @@ public class MediaMetadataExtractor extends HashMap<String, ArrayList<String>> {
 		// if bastp was able to parse it (which is stricter than Android's own parser)
 		mIsMediaFile = (containsKey(TITLE) || containsKey(ALBUM) || containsKey(ARTIST) || !bastpType.equals(""));
 
-		mediaTags.release();
+		try {
+			mediaTags.release();
+		} catch (Exception e) {
+			Log.v("VanillaMusic", "mediaTags.release() failed: " + e);
+		}
 	}
 
 
@@ -392,7 +401,11 @@ public class MediaMetadataExtractor extends HashMap<String, ArrayList<String>> {
 
 		// modified by zollty 12 lines. fix mp3 can not be recognized bug, since KEY_HAS_AUDIO maybe null
 		if (!nativelyReadable) {
-			mediaTags.release();
+			try {
+				mediaTags.release();
+			} catch (Exception e) {
+				Log.v("VanillaMusic", "mediaTags.release() failed: " + e);
+			}
 			return;
 		}
 		//Log.v("VanillaMusic", "87RE path= " + path);
@@ -402,7 +415,11 @@ public class MediaMetadataExtractor extends HashMap<String, ArrayList<String>> {
 		// Check if this is a usable audio file
 		if (mediaTags.extractMetadata(MediaMetadataRetriever.METADATA_KEY_HAS_VIDEO) != null ||
 		    mediaTags.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION) == null) {
-		    mediaTags.release();
+			try {
+				mediaTags.release();
+			} catch (Exception e) {
+				Log.v("VanillaMusic", "mediaTags.release() failed: " + e);
+			}
 			//Log.i("VanillaMusic", "E05 MIME_TYPE = " + mediaTags.extractMetadata(MediaMetadataRetriever.METADATA_KEY_MIMETYPE) + ", PATH = " + path);
 			Log.e("VanillaMusic", "E05 " + path + ", not a usable audio file, will return directly");
 			return;
@@ -453,7 +470,11 @@ public class MediaMetadataExtractor extends HashMap<String, ArrayList<String>> {
 		Log.v("VanillaMusic", "V01 mIsMediaFile = " + mIsMediaFile + ", PATH = " + path);
 		handleMP3TagEncoding(path);
 
-		mediaTags.release();
+		try {
+			mediaTags.release();
+		} catch (Exception e) {
+			Log.v("VanillaMusic", "mediaTags.release() failed: " + e);
+		}
 	}
 
 	// add by zollty, solve the non ISO-8859-1 character encoding error problem

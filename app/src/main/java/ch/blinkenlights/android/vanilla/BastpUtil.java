@@ -115,9 +115,14 @@ public class BastpUtil {
 			gv.album += 5.0f;
 		}
 
-		//Log.e("VanillaMusic", path + " tags: " + tags);
+		// Log.e("VanillaMusic", path + " tags: " + tags);
 		if(tags.containsKey("COMMENT")) {
-			final String[] comment = ((String)((ArrayList)tags.get("COMMENT")).get(0)).split(",",2);
+			final String[] comments = ((String)((ArrayList)tags.get("COMMENT")).get(0)).split(",",2);
+			String[] comment = new String[comments.length];
+			for(int i=0; i<comments.length; i++) {
+				comment[i] = codeName(comments[i]);
+				// Log.e("VanillaMusic", path + " tags: codeName " + comment[i]);
+			}
 			String seek=null, gain=null;
 			if(comment[0].startsWith("SEEK")) {
 				seek = comment[0].trim();
@@ -168,6 +173,18 @@ public class BastpUtil {
 			rg_float = Float.parseFloat(nums);
 		} catch(Exception e) {}
 		return rg_float;
+	}
+
+	// add by zollty
+	private static String codeName(String s) {
+		try {
+			if (s.equals(new String(s.getBytes("ISO-8859-1"), "ISO-8859-1"))) {
+				return new String (s.getBytes("ISO-8859-1"),"GBK");
+			}
+		} catch (Exception e) {
+			Log.e("VanillaMusic", "DECODE: can't decode name " + s, e);
+		}
+		return s;
 	}
 
 }

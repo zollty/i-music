@@ -57,7 +57,6 @@ import android.os.PowerManager;
 import android.os.Process;
 import android.os.SystemClock;
 import android.util.Log;
-import android.view.View;
 import android.widget.Toast;
 import androidx.core.app.NotificationCompat;
 import java.lang.Math;
@@ -882,6 +881,7 @@ public final class PlaybackService extends Service
 		if (playTimeStartPercent > 1) {
 			start = mp.getDuration() * playTimeStartPercent / 100;
 		}
+		Log.e("VanillaMusic", rg.seekStart+" ------------------------ " + start);
 		return start > rg.seekStart ? start : rg.seekStart;
 	}
 
@@ -2232,11 +2232,11 @@ public final class PlaybackService extends Service
 		case NOT_ACTION_NEXT_SONG: {
 			Intent intent = new Intent(this, PlaybackService.class);
 			intent.setAction(PlaybackService.ACTION_NEXT_SONG_AUTOPLAY);
-			return PendingIntent.getService(this, 0, intent, 0);
+			return AndroidUtils.getActivity(this, intent);
 		}
 		case NOT_ACTION_MINI_ACTIVITY: {
 			Intent intent = new Intent(this, MiniPlaybackActivity.class);
-			return PendingIntent.getActivity(this, 0, intent, 0);
+			return AndroidUtils.getActivity(this, intent);
 		}
 		default:
 			Log.w("VanillaMusic", "Unknown value for notification_action. Defaulting to 0.");
@@ -2244,12 +2244,12 @@ public final class PlaybackService extends Service
 		case NOT_ACTION_MAIN_ACTIVITY: {
 			Intent intent = new Intent(this, LibraryActivity.class);
 			intent.setAction(Intent.ACTION_MAIN);
-			return PendingIntent.getActivity(this, 0, intent, 0);
+			return AndroidUtils.getActivity(this, intent);
 		}
 		case NOT_ACTION_FULL_ACTIVITY: {
 			Intent intent = new Intent(this, FullPlaybackActivity.class);
 			intent.setAction(Intent.ACTION_MAIN);
-			return PendingIntent.getActivity(this, 0, intent, 0);
+			return AndroidUtils.getActivity(this, intent);
 		}
 		}
 	}
@@ -2290,11 +2290,11 @@ public final class PlaybackService extends Service
 			.setSubText(song.artist)
 			.setContentIntent(mNotificationAction)
 			.addAction(new NotificationCompat.Action(R.drawable.previous,
-													 getString(R.string.previous_song), PendingIntent.getService(this, 0, previous, 0)))
+													 getString(R.string.previous_song), AndroidUtils.getService(this, previous)))
 			.addAction(new NotificationCompat.Action(playButton,
-													 getString(R.string.play_pause), PendingIntent.getService(this, 0, playPause, 0)))
+													 getString(R.string.play_pause), AndroidUtils.getService(this, playPause)))
 			.addAction(new NotificationCompat.Action(R.drawable.next,
-													 getString(R.string.next_song), PendingIntent.getService(this, 0, next, 0)))
+													 getString(R.string.next_song), AndroidUtils.getService(this, next)))
 			.setStyle(new androidx.media.app.NotificationCompat.MediaStyle()
 					  .setMediaSession(mMediaSessionTracker.getSessionToken())
 					  .setShowActionsInCompactView(0, 1, 2))

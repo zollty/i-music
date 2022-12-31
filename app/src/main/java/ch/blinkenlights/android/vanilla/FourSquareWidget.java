@@ -29,7 +29,6 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
-import android.util.Log;
 import android.view.View;
 import android.widget.RemoteViews;
 
@@ -137,16 +136,16 @@ public class FourSquareWidget extends AppWidgetProvider {
 		int flags = Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_TASK_ON_HOME;
 
 		intent = new Intent(context, LibraryActivity.class).setAction(Intent.ACTION_MAIN);
-		pendingIntent = PendingIntent.getActivity(context, 0, intent, 0);
+		pendingIntent = AndroidUtils.getActivity(context, intent);
 		views.setOnClickPendingIntent(R.id.title, pendingIntent);
 		views.setOnClickPendingIntent(R.id.artist, pendingIntent);
 
 		intent = ShortcutPseudoActivity.getIntent(context, PlaybackService.ACTION_TOGGLE_PLAYBACK);
-		pendingIntent = PendingIntent.getActivity(context, 0, intent, 0);
+		pendingIntent = AndroidUtils.getActivity(context, intent);
 		views.setOnClickPendingIntent(R.id.play_pause, pendingIntent);
 
 		intent = ShortcutPseudoActivity.getIntent(context, PlaybackService.ACTION_NEXT_SONG);
-		pendingIntent = PendingIntent.getActivity(context, 0, intent, 0);
+		pendingIntent = AndroidUtils.getActivity(context, intent);
 		views.setOnClickPendingIntent(R.id.next, pendingIntent);
 
 		manager.updateAppWidget(new ComponentName(context, FourSquareWidget.class), views);

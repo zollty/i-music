@@ -68,8 +68,8 @@ THE SOFTWARE.
 			android:launchMode="singleTask" />
 		<activity
 			android:name="LibraryActivity"
-			android:exported="true"
 			android:theme="@style/Library"
+			android:exported="true"
 			android:launchMode="singleTask">
 			<intent-filter>
 				<action android:name="android.intent.action.MAIN" />
@@ -94,8 +94,8 @@ THE SOFTWARE.
 			android:launchMode="singleInstance" />
 		<receiver
 			android:name=".OneCellWidget"
-			android:exported="false"
-			android:label="Vanilla Music 1x1">
+			android:label="Vanilla Music 1x1"
+			android:exported="false">
 			<intent-filter>
 				<action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
 			</intent-filter>
@@ -105,8 +105,8 @@ THE SOFTWARE.
 		</receiver>
 		<receiver
 			android:name=".FourLongWidget"
-			android:exported="false"
-			android:label="Vanilla Music 4x1 A">
+			android:label="Vanilla Music 4x1 A"
+			android:exported="false">
 			<intent-filter>
 				<action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
 			</intent-filter>
@@ -116,8 +116,8 @@ THE SOFTWARE.
 		</receiver>
 		<receiver
 			android:name=".FourWhiteWidget"
-			android:exported="false"
-			android:label="Vanilla Music 4x1 White">
+			android:label="Vanilla Music 4x1 White"
+			android:exported="false">
 			<intent-filter>
 				<action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
 			</intent-filter>
@@ -127,8 +127,8 @@ THE SOFTWARE.
 		</receiver>
 		<receiver
 			android:name=".WidgetE"
-			android:exported="false"
-			android:label="Vanilla Music 4x1 B">
+			android:label="Vanilla Music 4x1 B"
+			android:exported="false">
 			<intent-filter>
 				<action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
 			</intent-filter>
@@ -138,8 +138,8 @@ THE SOFTWARE.
 		</receiver>
 		<receiver
 			android:name=".FourSquareWidget"
-			android:exported="false"
-			android:label="Vanilla Music 2x2 A">
+			android:label="Vanilla Music 2x2 A"
+			android:exported="false">
 			<intent-filter>
 				<action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
 			</intent-filter>
@@ -149,8 +149,8 @@ THE SOFTWARE.
 		</receiver>
 		<receiver
 			android:name=".WidgetD"
-			android:exported="false"
-			android:label="Vanilla Music 2x2 B">
+			android:label="Vanilla Music 2x2 B"
+			android:exported="false">
 			<intent-filter>
 				<action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
 			</intent-filter>
